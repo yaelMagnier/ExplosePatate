@@ -1,0 +1,181 @@
+include('../../main/INCLUDER') ;
+
+//--------------------------------
+//---------- PAQUETS -------------
+//--------------------------------
+
+global _PAQUETS = [] ;
+_PAQUETS = [] ;
+
+function setPaquets(enemy){
+	
+	var my = _MY_LEEK ;
+	
+	var max_AOE_enemy = 0 ;
+	
+	for(var weapon in _LEEK_ITEMS[enemy]){
+		if(_ITEM_AREA[weapon]-2 > max_AOE_enemy){
+			max_AOE_enemy = abs(_ITEM_AREA[weapon]-2) ;
+		}
+	}
+	
+	var not_secure_cells = getNotSecureCells(enemy) ;
+	
+	// Chaque arme peut transmettre au maximum deux paquets. Le premier en ayant une solution sécurisée après, l'autre sans. Ce deuxième paquet n'est transmis que si il apporte une valeur suplémentaire, tel qu'un tir plus direct.
+	for(var weapon : var weapon_cells in shootDatas(my, enemy)){
+		
+		if(isEmpty(weapon_cells)) break ;
+		
+		var secures = [] ;
+		var unsecures = [] ;
+		
+		for(var cell : var data in weapon_cells){
+			
+			if(!isEmpty(data[4])) secures[cell] = data ;
+			else unsecures[cell] = data ;
+			
+		}
+		
+		if(!isEmpty(secures)){
+			
+			// Cellule ayant la meilleur sécurité post attaque
+			var bests_secure = [] ;
+			var bests_dist = -1;
+
+			for(var cell : var data in secures){
+
+				var best_secure_cell = [] ;
+				var best_dist = -2;
+
+				for(var sec_cell : var sec_cost in data[4]){
+
+					// Case touchable par l'adv la plus proche (AOE)
+					var dist = 100 ;
+
+					for(var not_sec_cell in not_secure_cells){
+
+						if(getCellDistance(sec_cell, not_sec_cell) < dist){
+							dist =  getCellDistance(sec_cell, not_sec_cell);
+						}
+
+					}
+
+					if(min(dist,max_AOE_enemy) > min(best_dist,max_AOE_enemy)){
+						best_dist = min(dist,max_AOE_enemy) ;
+						best_secure_cell = [sec_cell: sec_cost] ;
+					}else if(min(dist,max_AOE_enemy) === min(best_dist,max_AOE_enemy)){
+						best_secure_cell[sec_cell] = sec_cost ;
+					}
+
+				}
+
+				data[4] = best_secure_cell ;
+
+				  if(best_dist > bests_dist){
+						bests_secure = [cell: data] ;
+				  }else if(best_dist === bests_dist){
+						bests_secure[cell] = data ;
+				  }
+
+			}
+
+			var bests_offensive = [] ;
+			var dst = 100 ;
+
+			// Cellule faisant le plus de dégat à l'adversaire
+			for(var cell : var data in bests_secure){
+
+				if(isEmpty(bests_offensive) or data[2] < dst){
+					dst = data[2] ;
+					bests_offensive = [cell: data] ;
+				}else if(data[2] === dst){
+					bests_offensive[cell] = data ;
+				}
+
+			}
+			
+			var min_cost ;
+			
+			for(var cell : var data in bests_offensive){
+				
+				if(!min_cost or getCellDistance(cell, getCell(my)) < getCellDistance(min_cost[0], getCell(my))){
+					min_cost = data ;
+				}
+				
+			}
+			
+			push(_PAQUETS,min_cost) ;
+			
+		}else if(!isEmpty(unsecures)){
+
+			var bests_offensive = [] ;
+			var dst = 100 ;
+
+			// Cellule faisant le plus de dégat à l'adversaire
+			for(var cell : var data in unsecures){
+
+				if(isEmpty(bests_offensive) or data[2] < dst){
+					dst = data[2] ;
+					bests_offensive = [cell: data] ;
+				}else if(data[2] === dst){
+					bests_offensive[cell] = data ;
+				}
+
+			}
+			
+			var min_cost ;
+			
+			for(var cell : var data in bests_offensive){
+				
+				if(!min_cost or getCellDistance(cell, getCell(my)) < getCellDistance(min_cost[0], getCell(my))){
+					min_cost = data ;
+				}
+				
+			}
+			
+			if(!_PAQUETS[enemy]) _PAQUETS[enemy] = [] ;
+			
+			push(_PAQUETS[enemy],[min_cost[0],min_cost[1],min_cost[2],min_cost[3]]) ;
+			
+		}
+		
+	}
+	
+}
+
+// [weapon: [cell: [cell,cell_to_shoot,dist(cell_to_shoot,cell_leek2),dist(cell,cell_to_shoot)], secure_cells]]
+function shootDatas(leek1, leek2){
+
+	var not_secure_cells = getNotSecureCells(leek2) ;
+	
+	var shoots_secure_cells = [] ;
+	
+	for(var weapon in getWeapons(leek1)){
+
+		var shoot_secure_cells = getShootCells(weapon,leek1,leek2) ;
+
+		for(var cell : var data in shoot_secure_cells){
+
+			var secure_cells = getAccessibleCells(cell,_LEEK_MP[leek1]-getCellDistance(_LEEK_CELL[leek1], cell)) ;
+
+			for(var accessible_cell : var accessible_cost in secure_cells){
+
+				if(inArray(not_secure_cells, accessible_cell)){
+
+					removeKey(secure_cells, accessible_cell) ;
+
+				}
+
+			}
+
+			shoot_secure_cells[cell] = data + [secure_cells] ;
+
+		}
+		
+		shoots_secure_cells[weapon] = shoot_secure_cells ;
+
+	}
+	
+	return shoots_secure_cells ;
+	
+}

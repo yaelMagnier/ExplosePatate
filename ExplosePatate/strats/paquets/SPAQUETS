@@ -1,0 +1,54 @@
+include('../../main/INCLUDER') ;
+
+//--------------------------------
+//---------- SPAQUETS ------------
+//--------------------------------
+
+global _SPAQUETS = [] ;
+
+function setSPaquets(enemy){
+	
+	var enemy_cell = _LEEK_CELL[enemy] ;
+	var my_cell = _LEEK_CELL[_MY_LEEK] ;
+	var my_mp = _LEEK_MP[_MY_LEEK] ;
+	
+	for(var item in _LEEK_ITEMS[_MY_LEEK]){
+	
+		if(_ITEMS[item] === 2 and getCooldown(item, _MY_LEEK) > 0) continue ;
+	
+		if(!isEmpty(_ITEM_EFFECT_DAMAGE[item]) 
+		  or !isEmpty(_ITEM_EFFECT_POISON[item]) 
+		  or !isEmpty(_ITEM_EFFECT_SHACKLE_MAGIC[item]) 
+		  or !isEmpty(_ITEM_EFFECT_SHACKLE_TP[item]) 
+		  or !isEmpty(_ITEM_EFFECT_SHACKLE_MP[item]) 
+		  or !isEmpty(_ITEM_EFFECT_SHACKLE_STRENGTH[item])){
+				
+			// Parmis les possibilités, prendre la moins couteuse
+
+			var cell_from_shoot ;
+
+			for(var cell in getTargetableCells(item,enemy_cell)){
+
+				if(!cell_from_shoot or getCellDistance(my_cell, cell) < getCellDistance(my_cell, cell_from_shoot)){
+
+					cell_from_shoot = cell ;
+
+				}
+
+			}
+
+			if(cell_from_shoot and getCellDistance(cell_from_shoot, my_cell) <= my_mp){
+
+				push(_SPAQUETS, [item,cell_from_shoot]) ;
+
+			}
+			
+		}else{
+			
+			// Non terminé
+			
+		}
+		
+	}
+	
+}

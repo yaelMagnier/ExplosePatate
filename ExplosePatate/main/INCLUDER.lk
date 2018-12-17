@@ -1,20 +1,7 @@
 //--------------------------------
-//---------- INCLUDE -------------
+//--------- INCLUDER -------------
 //--------------------------------
 
-
-/*
- * 1 - Global
- * 2 - Static
- * 3 - Fonctions
- * 4 - Registers
- * 5 - Accessible_cells
- * 6 - Map de dégats
- * 7 - Tools
- * 8 - Setter
- * 9 - Updater
- * 10 - Strat
-*/
 include("../tools/GLOBALS");
 include("../tools/fonctions/OTHERS");
 include("../tools/static/ITEMS");
@@ -28,3 +15,5 @@ include("SETTER");
 include("UPDATER");
 include("../strats/BASIC");
 include("../strats/WEAPONSTRAT");
+include("../strats/paquets/PAQUETS");
+include("../strats/paquets/SPAQUETS");
