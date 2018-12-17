@@ -233,7 +233,6 @@ function applyStrat(weapon){
 					for(var cell=__MIN_CELL; cell <= __MAX_CELL ; cell++){
 						
 						if(!isObstacle(cell)
-						  and !inArray(__MARGES, cell)
 						  and _CELL_X[cell] >= -5 and _CELL_X[cell] <= 5
 						  and _CELL_Y[cell] >= -5 and _CELL_Y[cell] <= 5
 						  and !inArray(not_secure_cells, cell)
