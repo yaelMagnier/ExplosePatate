@@ -3,66 +3,6 @@
 //--------------------------------
 
 /**********************\
-|     MANAGEMENT       |
-\**********************/
-
-/* 
- * - IA 
- * 		MANAGEMENT
- * 			--> DESCRIPTION: Tous les détails du projet
- * 
- * 		- tools
- * 
- * 			- fonctions
- * 
- * 				- ITEMS		
- * 					--> DESCRIPTION: Toutes les fonctions qui permette d'unir tous les items (armes et puces).
- * 
- * 				- ACCESSIBLE_CELLS
- * 					--> DESCRIPTION: Donne les cellules accessibles.
- *
- * 				- AUTRES
- * 					--> DESCRIPTION: fonctions suplémentaires
- * 			- maps
- * 
- * 				- MAP_OF_DAMAGE
- * 					--> DESCRIPTION: Gere la map de dommage
- * 
- * 			- static
- * 				
- * 				- ITEMS
- * 					--> DESCRIPTION: Données brut en lien avec les items
- * 				
- * 				- BULBES
- * 					--> DESCRIPTION: Données brut en lien avec les bulbs
- * 
- * 			- GLOBALS 								
- * 				--> DESCRIPTION: stocke toutes les globales necessaires au fonctionnement de l'IA  
- * 
- * 			- REGISTERS
- * 				--> DESCRIPTION: Gere les infos stockées dans les registres
- * 
- *        	- COEFICIENTS             
- * 				--> DESCRIPTION: Permet de choisir les actions les plus importantes a jouer sur le moment ou a decider si telle action est a eviter
- * 
- *		- main
- 
- *			- MAIN
- 				--> DESCRIPTION: Fichier de coordination de l'IA. C'est lui qui est executé.
-                
- *			- SETTER
- 				--> DESCRIPTION: Initialise.
-                
- *			- UPDATER
- 				--> DESCRIPTION: Met a jour à chaque tour.
-                
-            - INCLUDER
-                --> DESCRIPTION: Sert de fichier a include (pour inclure d'autres fichiers)
- * 		- strats
- * 
- * / 
-
-/**********************\
 |      CONVENTIONS     |
 \**********************/
 
