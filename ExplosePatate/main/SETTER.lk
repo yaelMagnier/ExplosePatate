@@ -44,6 +44,8 @@ function init(){
 		_ITEM_IS_INLINE[item]		= isInlineItem(item) ;
 		_ITEM_NEED_LOS[item]		= itemNeedLos(item) ;
 		
+		_ITEM_EFFECTS[item] = getItemEffects(item);
+		
 		_ITEM_EFFECT_DAMAGE[item]			= [] ;
 		_ITEM_EFFECT_POISON[item]			= [] ;
 		_ITEM_EFFECT_ABSOLUTE_SHIELD[item]	= [] ;
@@ -64,7 +66,7 @@ function init(){
 		_ITEM_EFFECT_SUMMON[item]			= [] ;
 		_ITEM_EFFECT_BOOST_MAX_LIFE[item]	= [] ;
 		
-		for(var effect in getItemEffects(item)){
+		for(var effect in _ITEM_EFFECTS[item]){
 			
 			var effect_tab ;
 			if(effect[0] == EFFECT_DAMAGE) 					effect_tab = @_ITEM_EFFECT_DAMAGE ;
