@@ -146,6 +146,9 @@ global _OBSTACLES = [];
 // ID des obstacles mais en clé
 global _KEY_OBSTACLES = [];
 
+// Cache des cellules targetables
+global MAP_CACHE = [] ;
+
 /*********************\
 |      LEEK INFO      |
 \*********************/
