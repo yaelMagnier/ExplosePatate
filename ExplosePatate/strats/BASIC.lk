@@ -44,7 +44,7 @@ function getTargetableCells(@item,@cell){
 // Retourne les cellules touchables via AOE sous le format [cell: [cell, cell_to_shoot, dist]]
 function getTargetableCellsWithAOE(@item,@cell){
 
-	var AOE = _ITEM_AREA[item]-2 ;
+	var AOE = abs(_ITEM_AREA[item]-2) ;
 	
 	var x = _CELL_X[cell] ;
 	var y = _CELL_Y[cell] ;
@@ -73,99 +73,3 @@ function getTargetableCellsWithAOE(@item,@cell){
 	return cells_with_AOE ;
 
 }
-
-/*function getCellsToTargetEnemies(@item, @leeks){
-	var cellsToTarget = [];
-	for (var leek in leeks) {
-		(_ITEM_AREA[item] == AREA_POINT or _ITEM_AREA[item] == AREA_LASER_LINE) ? 
-		push(cellsToTarget, _LEEK_CELL[leek]) : (_ITEM_AREA[item] == AREA_CIRCLE_1 ? 
-		addArea1Cells(cellsToTarget, leek) : (_ITEM_AREA[item] == AREA_CIRCLE_2 ? 
-		addArea2Cells(cellsToTarget, leek) : addArea3Cells(cellsToTarget, leek)));
-	}
-	var acc = []; 
-	for (var c in cellsToTarget) { 
-		if (c!= null and (!inArray(acc, c)) and (isObstacle(c) == false)) { 
- 			push(acc, c); 
-		} 
-	}
-	return acc;
-}
-
-function addArea1Cells(@cellsToTarget,@leek){
-	var x = _CELL_X[_LEEK_CELL[leek]];
-	var y = _CELL_Y[_LEEK_CELL[leek]];
-	cellsToTarget +=  [
-		_LEEK_CELL[leek], 
-		getCellFromXY(x-1, y),
-		getCellFromXY(x+1, y),
-		getCellFromXY(x, y-1),
-		getCellFromXY(x, y+1)
-	];
-}
-
-function addArea2Cells(@cellsToTarget, @leek){
-	var x = _CELL_X[_LEEK_CELL[leek]];
-	var y = _CELL_Y[_LEEK_CELL[leek]];
-	cellsToTarget +=  [
-		_LEEK_CELL[leek], 
-		getCellFromXY(x-1, y),
-		getCellFromXY(x+1, y),
-		getCellFromXY(x, y-1),
-		getCellFromXY(x, y+1),
-		getCellFromXY(x-1, y-1),
-		getCellFromXY(x+1, y+1),
-		getCellFromXY(x-1, y+1),
-		getCellFromXY(x+1, y-1),
-		getCellFromXY(x-2, y),
-		getCellFromXY(x+2, y),
-		getCellFromXY(x, y-2),
-		getCellFromXY(x, y+2)
-	];
-}
-
-function addArea3Cells(@cellsToTarget, @leek){
-	var x = _CELL_X[_LEEK_CELL[leek]];
-	var y = _CELL_Y[_LEEK_CELL[leek]];
-	cellsToTarget +=  [
-		_LEEK_CELL[leek], 
-		getCellFromXY(x-1, y),
-		getCellFromXY(x+1, y),
-		getCellFromXY(x, y-1),
-		getCellFromXY(x, y+1),
-		getCellFromXY(x-1, y-1),
-		getCellFromXY(x+1, y-1),
-		getCellFromXY(x-1, y+1),
-		getCellFromXY(x+1, y+1),
-		getCellFromXY(x-2, y),
-		getCellFromXY(x+2, y),
-		getCellFromXY(x, y-2),
-		getCellFromXY(x, y+2),
-		getCellFromXY(x-1, y-2),
-		getCellFromXY(x-1, y+2),
-		getCellFromXY(x-2, y-1),
-		getCellFromXY(x+2, y-1),
-		getCellFromXY(x+1, y+2),
-		getCellFromXY(x+1, y-2),
-		getCellFromXY(x+2, y+1),
-		getCellFromXY(x-2, y+1),
-		getCellFromXY(x-3, y),
-		getCellFromXY(x+3, y),
-		getCellFromXY(x, y-3),
-		getCellFromXY(x, y+3),
-	];
-}
-
-function getTargetableCellsAOE(@item, @leek, @enemies){
-	var targetableCells = [];
-	var AOE = getCellsToTargetEnemies(item, enemies);
-	for (var cell in AOE) {
-		var cellsToTarget = getCellsToUseWeaponOnCell(item, cell); // A OPTI
-		for (var c in cellsToTarget) {
-			if (inArray(_LEEK_ACCESSIBLE_CELLS[leek], c) and !inArray(targetableCells, c)){
-				push(targetableCells, c); // Eviter le push ?
-			}
-		}
-	}
-	mark(targetableCells);
-	return targetableCells;
-}*/
