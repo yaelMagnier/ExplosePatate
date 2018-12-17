@@ -29,7 +29,8 @@ function update() {
 			_LEEK_TEAM_ID[leek_id]			= getTeamID(leek_id) ;
 			_LEEK_TEAM_NAME[leek_id]		= getTeamName(leek_id) ;
 
-			_LEEK_ITEMS[leek_id]			= getWeapons(leek_id) + getChips(leek_id) ;
+			_LEEK_CHIPS[leek_id]			= getChips(leek_id);
+			_LEEK_ITEMS[leek_id]			= getWeapons(leek_id) + _LEEK_CHIPS[leek_id];
 
 		}
 		
