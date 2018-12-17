@@ -1,0 +1,96 @@
+include('INCLUDER') ;
+
+//--------------------------------
+//---------- SETTER -------------
+//--------------------------------
+
+function init(){
+
+	// Défini notre poireau
+	_MY_LEEK 		= getLeek() ;
+
+	// Défini le contexte du combat
+	_FIGHT_CONTEXT 	= getFightContext() ;
+	
+	// Défini le type de combat
+	_FIGHT_TYPE		= getFightType() ;
+	
+	// Définion de _CELL_X et _CELL_Y qui remplacent getCellX et getCellY
+	for(var cell=__MIN_CELL ; cell<= __MAX_CELL ; cell++){
+	
+		// Stockage de la valeur en X et en Y de chaque cellule
+		_CELL_X[cell] = getCellX(cell) ;
+		_CELL_Y[cell] = getCellY(cell) ;
+		
+		// On commence par associer la clé a l'obstacle
+		isObstacle(cell) ? _KEY_OBSTACLES[cell] = true : _KEY_OBSTACLES[cell] = false;
+		
+      	// Si la cellule est un obstacle alors on l'ajoute a la liste
+		_KEY_OBSTACLES[cell] ? _OBSTACLES += [cell] : null;
+	
+	}
+	
+	for(var item in getGameItems()){
+		
+		if(isWeapon(item)) _ITEMS[item] = 1 ;
+		else if(isChip(item)) _ITEMS[item] = 2 ;
+		else continue ;
+		
+		_ITEM_MAX_RANGE[item]		= getItemMaxRange(item) ;
+		_ITEM_MIN_RANGE[item]		= getItemMinRange(item) ;
+		_ITEM_AREA[item]			= getItemArea(item) ;
+		_ITEM_COST[item]			= getItemCost(item) ;
+		_ITEM_COOLDOWN[item]		= getItemCooldown(item) ;
+		_ITEM_IS_INLINE[item]		= isInlineItem(item) ;
+		_ITEM_NEED_LOS[item]		= itemNeedLos(item) ;
+		
+		_ITEM_EFFECT_DAMAGE[item]			= [] ;
+		_ITEM_EFFECT_POISON[item]			= [] ;
+		_ITEM_EFFECT_ABSOLUTE_SHIELD[item]	= [] ;
+		_ITEM_EFFECT_RELATIVE_SHIELD[item]	= [] ;
+		_ITEM_EFFECT_HEAL[item]				= [] ;
+		_ITEM_EFFECT_BUFF_RESISTANCE[item]	= [] ;
+		_ITEM_EFFECT_BUFF_AGILITY[item]		= [] ;
+		_ITEM_EFFECT_BUFF_STRENGTH[item]	= [] ;
+		_ITEM_EFFECT_BUFF_TP[item]			= [] ;
+		_ITEM_EFFECT_BUFF_MP[item]			= [] ;
+		_ITEM_EFFECT_BUFF_WISDOM[item]		= [] ;
+		_ITEM_EFFECT_SHACKLE_MAGIC[item]	= [] ;
+		_ITEM_EFFECT_SHACKLE_TP[item]		= [] ;
+		_ITEM_EFFECT_SHACKLE_MP[item]		= [] ;
+		_ITEM_EFFECT_SHACKLE_STRENGTH[item]	= [] ;
+		_ITEM_EFFECT_ANTIDOTE[item]			= [] ;
+		_ITEM_EFFECT_DAMAGE_RETURN[item]	= [] ;
+		_ITEM_EFFECT_SUMMON[item]			= [] ;
+		_ITEM_EFFECT_BOOST_MAX_LIFE[item]	= [] ;
+		
+		for(var effect in getItemEffects(item)){
+			
+			var effect_tab ;
+			if(effect[0] == EFFECT_DAMAGE) 					effect_tab = @_ITEM_EFFECT_DAMAGE ;
+			else if(effect[0] == EFFECT_POISON) 			effect_tab = @_ITEM_EFFECT_POISON ;
+			else if(effect[0] == EFFECT_ABSOLUTE_SHIELD) 	effect_tab = @_ITEM_EFFECT_ABSOLUTE_SHIELD ;
+			else if(effect[0] == EFFECT_RELATIVE_SHIELD) 	effect_tab = @_ITEM_EFFECT_RELATIVE_SHIELD ;
+			else if(effect[0] == EFFECT_HEAL) 				effect_tab = @_ITEM_EFFECT_HEAL ;
+			else if(effect[0] == EFFECT_BUFF_RESISTANCE) 	effect_tab = @_ITEM_EFFECT_BUFF_RESISTANCE ;
+			else if(effect[0] == EFFECT_BUFF_AGILITY) 		effect_tab = @_ITEM_EFFECT_BUFF_AGILITY ;
+			else if(effect[0] == EFFECT_BUFF_STRENGTH) 		effect_tab = @_ITEM_EFFECT_BUFF_STRENGTH ;
+			else if(effect[0] == EFFECT_BUFF_TP) 			effect_tab = @_ITEM_EFFECT_BUFF_TP ;
+			else if(effect[0] == EFFECT_BUFF_MP) 			effect_tab = @_ITEM_EFFECT_BUFF_MP ;
+			else if(effect[0] == EFFECT_BUFF_WISDOM) 		effect_tab = @_ITEM_EFFECT_BUFF_WISDOM ;
+			else if(effect[0] == EFFECT_SHACKLE_MAGIC) 		effect_tab = @_ITEM_EFFECT_SHACKLE_MAGIC ;
+			else if(effect[0] == EFFECT_SHACKLE_TP) 		effect_tab = @_ITEM_EFFECT_SHACKLE_TP ;
+			else if(effect[0] == EFFECT_SHACKLE_MP) 		effect_tab = @_ITEM_EFFECT_SHACKLE_MP ;
+			else if(effect[0] == EFFECT_SHACKLE_STRENGTH) 	effect_tab = @_ITEM_EFFECT_SHACKLE_STRENGTH ;
+			else if(effect[0] == EFFECT_ANTIDOTE) 			effect_tab = @_ITEM_EFFECT_ANTIDOTE ;
+			else if(effect[0] == EFFECT_DAMAGE_RETURN) 		effect_tab = @_ITEM_EFFECT_DAMAGE_RETURN ;
+			else if(effect[0] == EFFECT_SUMMON) 			effect_tab = @_ITEM_EFFECT_SUMMON ;
+			else if(effect[0] == EFFECT_BOOST_MAX_LIFE) 	effect_tab = @_ITEM_EFFECT_BOOST_MAX_LIFE ;
+			
+			if(effect_tab) push(@effect_tab[item], [effect[1],effect[2],effect[3],effect[4]]) ;
+			
+		}
+		
+	}
+	
+}

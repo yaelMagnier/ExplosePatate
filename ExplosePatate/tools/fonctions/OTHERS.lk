@@ -1,0 +1,27 @@
+include("../../main/INCLUDER");
+
+//--------------------------------
+//----------- OTHERS -------------
+//--------------------------------
+
+function initDebugOp() {
+	OPERATIONS = getOperations();
+}
+
+function debugOp() {
+	___DEBUG ? debugC(getOperations() - OPERATIONS, __COLOR_BLUE) : null;
+}
+
+// Retourne les ID du tableau tab
+function getKeys(@tab){
+	var finTab = [] ;
+	for(var key:var value in tab){
+		push(finTab, key) ; 
+	}
+	return @finTab ;
+}
+
+// Retourne l'ID de tous les poirreaux
+function getLeeks() {
+	return getAllies() + getEnemies() ;
+}

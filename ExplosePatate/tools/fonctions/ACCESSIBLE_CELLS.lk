@@ -1,0 +1,115 @@
+include('../../main/INCLUDER') ;
+
+/////////////////
+ //    Cache    //
+/////////////////
+
+global neighbours_cache = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]] ;
+
+global preLeeksCells = [] ;
+
+function getLeeksCells(){
+	var leeksCells = [] ;
+	for(var enemyL in getEnemies()){
+		push(leeksCells,getCell(enemyL)) ;
+	}
+	for(var enemyL in getAllies()){
+		push(leeksCells,getCell(enemyL)) ;
+	}
+	return leeksCells ;
+}
+
+function initB(){
+	for(var cell=0;cell<=615;cell++){
+		if(!isObstacle(cell) and !__MARGES[cell]){
+
+			var xv = getCellX(cell) ;
+			var yv = getCellY(cell) ;
+
+			var adjs = [getCellFromXY(xv+1, yv),
+						getCellFromXY(xv, yv+1),
+						getCellFromXY(xv-1, yv),
+						getCellFromXY(xv, yv-1)] ;
+
+			for(var adj in adjs){
+				if(adj != null and !isObstacle(adj)){
+					neighbours_cache[adj][cell] = 0 ;
+				}
+			}
+
+		}
+	}
+}
+
+function initTurn(){
+	for(var oldLeekCell in preLeeksCells){
+		if(oldLeekCell and !isObstacle(oldLeekCell)){
+
+			var xv = getCellX(oldLeekCell) ;
+			var yv = getCellY(oldLeekCell) ;
+
+			var adjs = [getCellFromXY(xv+1, yv),
+						getCellFromXY(xv, yv+1),
+						getCellFromXY(xv-1, yv),
+						getCellFromXY(xv, yv-1)] ;
+
+			for(var adj in adjs){
+				if(adj != null and !isObstacle(adj) and !__MARGES[adj]){
+					neighbours_cache[adj][oldLeekCell] = 0 ;
+				}
+			}
+
+		}
+	}
+	for(var leekCell in getLeeksCells()){
+		if(leekCell and !isObstacle(leekCell)){
+			var xv = getCellX(leekCell) ;
+			var yv = getCellY(leekCell) ;
+
+			var adjs = [getCellFromXY(xv+1, yv),
+						getCellFromXY(xv, yv+1),
+						getCellFromXY(xv-1, yv),
+						getCellFromXY(xv, yv-1)] ;
+
+			for(var adj in adjs){
+				if(adj != null and !isObstacle(adj) and !__MARGES[adj]){
+					removeKey(neighbours_cache[adj],leekCell) ;
+				}
+			}
+
+		}
+	}
+	preLeeksCells = getLeeksCells() ;
+}
+
+if(getTurn() == 1){
+	initB() ;
+}
+initTurn() ;
+
+
+/////////////////
+ //  Fonctions  //
+/////////////////
+
+function getAccessibleCells(cell,mp){
+	
+	var neigbours = [] ;
+	var newNeigbours = [cell: 0] ;
+	
+	for(var i=0;i<=mp;i++){
+		var newNewNeigbours = [] ;
+		for(var neighbour : var _ in newNeigbours){
+			var adjCells = getKeys(neighbours_cache[neighbour]) ;
+			for(var newNewNeigbour in adjCells){
+				newNewNeigbours[newNewNeigbour] = 0 ;
+			}
+			neigbours[neighbour] = i ;
+		}
+		newNeigbours = [] ;
+		for(var el : var _ in newNewNeigbours){
+			if(neigbours[el] == null) newNeigbours[el] = 0 ;
+		}
+	}
+	return neigbours ;
+}

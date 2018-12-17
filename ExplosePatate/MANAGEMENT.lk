@@ -1,0 +1,220 @@
+//--------------------------------
+//--------- MANAGEMENT -----------
+//--------------------------------
+
+/**********************\
+|     MANAGEMENT       |
+\**********************/
+
+/* 
+ * - IA 
+ * 		MANAGEMENT
+ * 			--> DESCRIPTION: Tous les détails du projet
+ * 
+ * 		- tools
+ * 
+ * 			- fonctions
+ * 
+ * 				- ITEMS		
+ * 					--> DESCRIPTION: Toutes les fonctions qui permette d'unir tous les items (armes et puces).
+ * 
+ * 				- ACCESSIBLE_CELLS
+ * 					--> DESCRIPTION: Donne les cellules accessibles.
+ *
+ * 				- AUTRES
+ * 					--> DESCRIPTION: fonctions suplémentaires
+ * 			- maps
+ * 
+ * 				- MAP_OF_DAMAGE
+ * 					--> DESCRIPTION: Gere la map de dommage
+ * 
+ * 			- static
+ * 				
+ * 				- ITEMS
+ * 					--> DESCRIPTION: Données brut en lien avec les items
+ * 				
+ * 				- BULBES
+ * 					--> DESCRIPTION: Données brut en lien avec les bulbs
+ * 
+ * 			- GLOBALS 								
+ * 				--> DESCRIPTION: stocke toutes les globales necessaires au fonctionnement de l'IA  
+ * 
+ * 			- REGISTERS
+ * 				--> DESCRIPTION: Gere les infos stockées dans les registres
+ * 
+ *        	- COEFICIENTS             
+ * 				--> DESCRIPTION: Permet de choisir les actions les plus importantes a jouer sur le moment ou a decider si telle action est a eviter
+ * 
+ *		- main
+ 
+ *			- MAIN
+ 				--> DESCRIPTION: Fichier de coordination de l'IA. C'est lui qui est executé.
+                
+ *			- SETTER
+ 				--> DESCRIPTION: Initialise.
+                
+ *			- UPDATER
+ 				--> DESCRIPTION: Met a jour à chaque tour.
+                
+            - INCLUDER
+                --> DESCRIPTION: Sert de fichier a include (pour inclure d'autres fichiers)
+ * 		- strats
+ * 
+ * / 
+
+/**********************\
+|      CONVENTIONS     |
+\**********************/
+
+/*
+ * 
+ * Fonction: nomDeLaFonction
+ * Variable: nom_de_la_variable
+ * Global: _NOM_DE_LA_GLOBAL
+ * Constante: __NOM_DE_LA_CONSTANTE
+ * Nom de fichier: NOM_DU_FICHIER
+ * Nom de dossier: nomDeDossier
+ *  
+ */
+
+/**********************\
+|      HISTORIQUE      |
+\**********************/
+
+/*
+ * Format : [AAAA.MM.JJ] PSEUDO : SOURCE COMPLETE # Action
+ * Exemple: [2018.12.12] BHASHER : tools/fonctions/ITEMS # Ajout de la fonction getItem()
+ * 
+ * 
+ * * [2018.12.12] YAEL_BHASHER : ROOT # Ajouts de fichiers initiaux
+ * * [2018.12.12] YAEL_BHASHER : Création du fichier /MANAGEMENT
+ * * [2018.12.12] YAEL_BHASHER : Ajout du fichier /tools/GLOBALS
+ * * [2018.12.12] YAEL : Ajout du fichier /main/MAIN
+ * * [2018.12.12] YAEL : Ajout du fichier /main/INCLUDER
+ * * [2018.12.12] BHASHER : Ajout du fichier /tools/static/BULBES
+ * * [2018.12.12] BHASHER : Ajout du fichier /main/SETTER
+ * * [2018.12.12] YAEL : Ajout du fichier /main/UPDATER
+ * * [2018.12.12] YAEL : Ajout du fichier /tools/COEFICIENTS
+ * * [2018.12.12] YAEL : Ajout du fichier /tools/REGISTERS
+ * * [2018.12.12] YAEL : Ajout du fichier /tools/static/ITEMS
+ * * [2018.12.12] YAEL : Ajout du fichier /tools/maps/MAP_OF_DAMAGE
+ * * [2018.12.12] YAEL : Ajout du fichier /tools/fontions/AUTRES
+ * * [2018.12.12] YAEL : Ajout du fichier /tools/fonction/ACCESSIBLE_CELLS
+ * * [2018.12.12] YAEL : Ajout du fichier /tools/fonction/ITEMS
+ * * [2018.12.13] BHASHER : Mise à jour de la fonction 'set' du fichier /main/SETTER
+ * * [2018.12.13] YAEL : Ajout de la globale 'OPERATIONS' pour debuger les operations
+ * * [2018.12.13] YAEL : Ajout des fonctions 'initDebugOp' et 'debugOp' du fichier /tools/fonctions/AUTRES
+ * * [2018.12.13] YAEL : Mise a jour de la globale '_OBSTACLES' du fichier /tools/GLOBALS en prévision d'optimisation
+ * * [2018.12.13] YAEL : Mise a jour de la fonction 'set' du fichier /main/SETTER pour optimiser l'atribution d'obstacles 
+ * * [2018.12.13] YAEL : Mise a jour du fichier /main/INCLUDER pour inclure AUTRES
+ * * [2018.12.13] YAEL : Ajout de certains coeficients dans le fichier /tools/COEFICIENTS
+ * * [2018.12.13] BHASHER : Ajout de la fonction 'getAccessibleCells' du fichier /tools/fonctions/ACCESSIBLE_CELLS (voir note)
+ * * [2018.12.13] BHASHER : Mise à jour de la fonction 'update' du fichier /main/UPDATER
+ * * [2018.12.13] BHASHER : Ajout de la fonction 'getLeeks' du fichier /tools/fonctions/OTHERS
+ * * [2018.12.13] YAEL : Suppression des liens codeshare
+ * * [2018.12.13] BHASHER : Remplacement de _LEEK_WEAPONS et _LEEK_CHIP par _LEEK_ITEMS dans /tools/GLOBALS
+ * * [2018.12.13] BHASHER : Mise a jour de 'updater' en conséquence
+ * * [2018.12.13] YAEL : Ajout d'un message 'SHOULD WORK' en haut de /MANAGEMENT
+ * * [2018.12.13] BHASHER : Ajout de la fonction 'getGameItems' du fichier /tools/fonctions/ITEMS
+ * * [2018.12.13] YAEL : Suppression du message 'SHOULD WORK' en haut de /MANAGEMENT
+ * * [2018.12.13] YAEL : Rennomage de IKEA à YAEL
+ * * [2018.12.13] BHASHER : Ajout des fonctions 'getItemMaxRange', 'getItemMinRange', 'getItemArea', 'getItemCost', 'getItemCooldown', 'isInlineItem', 'itemNeedLos' et 'getItemEffects' dans le fichier /tools/fonctions/ITEMS
+ * * [2018.12.13] BHASHER : Réparation de 'init' et 'initTurn' dans le fichier /tools/fonctions/ACCESSIBLE_CELLS
+ * * [2018.12.13] BHASHER : Ajout de la mise à jour de '_TURN' dans le fichier /main/UPDATER (hors fonction)
+ * * [2018.12.13] BHASHER : Mise à jour de 'update' du fichier /main/UPDATER
+ * * [2018.12.13] BHASHER : Mise à jour de 'set' du fichier /main/SETTER
+ * * [2018.12.13] YAEL : Deplacement de l'update de '_TURN' depuis /main/UPDATER vers /main/MAIN
+ * * [2018.12.13] BHASHER : Réparation de la fonction 'getGameItems' du fichier /tools/fonctions/ITEMS
+ * * [2018.12.13] BHASHER : Réparation de la fonction 'set' du fichier /main/SETTER
+ * * [2018.12.13] YAEL_BASHER : Ajout du fichier /strats/BASIC et de la fonction 'getTargetableCells'
+ * * [2018.12.13] YAEL : Ajout de la fonction 'getTargetableCellsAOE' du fichier /strats/BASIC
+ * * [2018.12.14] BHASHER : 'set' -> 'init' dans les fichier /main/SETTER et /main/MAIN
+ * * [2018.12.14] BHASHER : suppression de l'execution de 'init' et 'initTurn' dans le fichier /tools/fonctions/ACCESSIBLE_CELLS
+ * * [2018.12.14] BHASHER : Ajout de 'initAccessibleCells' et 'initTurnAccessibleCells' dans les fichiers /main/SETTER et /main/UPDATER
+ * * [2018.12.14] BHASHER : Suppression de la fonction 'getTargetableCellsAOE' du fichier /strats/BASIC
+ * * [2018.12.14] BHASHER : Ajout de la fonction 'getTargetableCellsWithAOE' du fichier /strats/BASIC
+ * * [2018.12.14] BHASHER : Réparation de la fonction 'getTargetableCellsWithAOE' du fichier /strats/BASIC
+ * * [2018.12.14] BHASHER : Mise à jour de la fonction 'getTargetableCellsWithAOE' du fichier /strats/BASIC
+ * * [2018.12.14] BHASHER : Ajout du fichier /strats/GAZOR et de son include dans /main/INCLUDER
+ * * [2018.12.14] BHASHER : Ajout de la fonction 'gazorStrat' dans le fichier /strats/GAZOR
+ * * [2018.12.15] YAEL : Ajout du fichier /strats/LOGIC et de ses premieres fonctions
+ * * [2018.12.15] BHASHER : Mise a jour de /tools/fonction/ACCESSIBLE_CELLS et supression de ses inits dans /main/SETTER et /main/UPDATER
+ * * [2018.12.15] BHASHER : Fichier /strats/GAZOR rennomé en /strats/WEAPONSTART
+ * * [2018.12.15] BHASHER : Création de la fonction 'getShootCells' dans le fichier /strats/WEAPONSTART
+ * * [2018.12.15] BHASHER : Création de la fonction 'getShootWithSecureCells' dans le fichier /strats/WEAPONSTART
+ * * [2018.12.15] BHASHER : Création de la fonction 'applyStrat' dans le fichier /strats/WEAPONSTART
+ * * [2018.12.15] YAEL : Suppression du fichier /strats/LOGIC
+ * * [2018.12.15] BHASHER : Mise à jour de la fonction 'applyStrat' du fichier /strats/WEAPONSTRAT pour gerer la TP
+ * * [2018.12.15] BHASHER : Création de la fonction 'chooseEnemy' dans le fichier /strats/WEAPONSTART et application dans la fonction 'applyStart'
+ * * [2018.12.15] BHASHER : Application de la globale __NOT_PLAY_AGAINST dans le fichier /main/MAIN
+ * * [2018.12.15] YAEL : Ajout de l'antidote dans 'applyStrat' du fichier /strats/WEAPONSTRAT
+ * * [2018.12.15] BHASHER : Ajout des marges dans /tools/fonctions/ACCESSIBLE_CELLS /tools/GLOBALS
+ * * [2018.12.15] YAEL : Modification de /main/MAIN et de /tools/fonctions/ACCESSIBLE_CELLS et /strats/WEAPONSTRAT pour prendre en compte les marges
+ * * [2018.12.15] YAEL : Modification de /main/MAIN pour regler un bug dans la blacklist
+ * * 
+ */
+
+/**********************\
+|     BUGS ISSUES      |
+\**********************/
+
+/*
+ * Format : [AAAA.MM.JJ][TYPE][RESOLU/EN COURS/NON RESOLU] Nom du bug / [PSEUDO] suggestion
+ * 
+ * * [2018.12.12][DEBUGGER][NON RESOLU] Debugger trop imprécis
+ * * [2018.12.12][FONCTION][RESOLU] Absence de la fonction getLeeks()
+ * * [2018.12.14][FONCTION][RESOLU] getTargetableCellsAOE ne fonctionne pas
+ *    * [YAEL] Partir des cellules qui permettent de toucher puis travailler depuis ces cellules la
+ *    * [BHASHER] Changement de fonction.
+ * * [2018.12.14][JEU][NON RESOLU] Ne devrais pas tirer sur le bulbe tour 7 (https://leekwars.com/fight/27509521)
+ *		* [BHASHER] Estimation des dégats subi si on ignore un bulb
+ * * [2018.12.14][FONCTION][NON RESOLU] Les marges devraient quand meme permetre le passage
+ * * [2018.12.16][FONCTION][NON RESOLU] si on spawn sur une marge on ne bouge pas
+ * */
+
+/************************\
+| COMBATS AVEC PROBLEMES | (à régler)
+\************************/
+
+/*
+ * Format:	* [RESOLU/EN COURS/NON RESOLU] Lien / Explication
+ *				* [PSEUDO] Suggestion
+ *
+ * [NON RESULU] https://leekwars.com/fight/27509241 / Bloqué dans un coin et y reste inactif
+ *  * [YAEL] Autre exemple : https://leekwars.com/fight/27509537 mais il reste actif apres
+ *	* [BHASHER] Interdire les cul de sac de moins de 10 cells
+ *	* [YAEL] Marge de quelques cellules + compter les cellules accessibles ?
+ *  * [YAEL] Se coince toujours
+ * [NON RESULU] https://leekwars.com/fight/27509253 / Etincelle petit a petit sans défense
+ *	* [BHASHER] Utiliser étincelle si pas d'action faisable et a moins de 10 cells
+ * [NON RESOLU] https://leekwars.com/fight/27509350 / Inaction avec AOE
+ 				https://leekwars.com/fight/27509425
+ * [NON RESOLU] https://leekwars.com/fight/27509357 / Jeu verouillé
+ * [RESOLU] https://leekwars.com/fight/27509438 / Antidote necessaire
+ * [NON RESOLU] https://leekwars.com/fight/27509503 / Contre un Antidote
+ *													/ Tour 9, il devrait tirer de la case 310 et non 293
+ *													/ Tour 8, hide and shoot pas sécurisé
+ * [NON RESOLU] https://leekwars.com/fight/27510346 / Enemi ne bouge pas, on devrais pouvoir l'attacker
+ * [NON RESOLU] https://leekwars.com/report/27510479 / Je saurais pas l'expliquer
+*/
+
+/**********************\
+|         NOTES        |
+\**********************/
+
+/*
+ * 
+ * Format : [AAAA.MM.JJ][PSEUDO] Note
+ * Exemple : [2018.12.12][YAEL] Le binaire c'est bien, mais ca se debug difficilement
+ *
+ * * [2018.12.12][BHASHER] Utiliser '===' plutot que '==' dès que possible. Exemple: if(_TURN === 1)
+ * * [2018.12.13][YAEL] On a besoin de petites fonctions dans coeficients pour en initialiser quelques uns, est ce qu'on les met direcemtent dans tools/COEFICIENTS ou est ce qu'on le separe en deux fichier
+ * * [2018.12.13][YAEL] Les coeficients seront certainement compris entre -1 et 1
+ *		* [BHASHER] Je propose qu'on fasse un dossier coeficients
+ * * [2018.12.13][BHASHER] isObstacle coute 10 ops (on le fait 615 fois) alors que getObstacles en coute 85. 
+ * 		* [YAEL] (On n'a que 744 op pour 4 alliés et 4 enemis, (Meme si ca devrais rien changer)) et de toute facon, tu iterais sur les obsacles en plus
+ * * [2018.12.13][BHASHER] Fonction getAccessibleCells temporaire pour pouvoir faire des tests en ayant un moyen d'avoir les cellules accesibles
+ *    * [YAEL] Et elle arrive bientot (ou pas, a voir le temps que j'ai et sur quoi je travaille)
+ * * [2018.12.14][BHASHER] https://pastebin.com/WQcYiZi1 (lol)
+ * 
+ * */

@@ -1,0 +1,68 @@
+include('INCLUDER') ;
+
+//--------------------------------
+//---------- UPDATER -------------
+//--------------------------------
+
+function update() {
+	
+	//On parcourt tous les poireaux
+	for(var leek_id in getLeeks()){
+
+		// Si ils ne sont pas encore lister
+		if(!inArray(_LEEKS, leek_id)){
+
+			// On les listes
+			push(_LEEKS, leek_id) ;
+
+			// On défini leurs caractéristiques fixes
+			_LEEK_IS_ENEMY[leek_id] 		= isEnemy(leek_id) ;
+			_LEEK_IS_BULB[leek_id] 			= isSummon(leek_id) ;
+			_LEEK_LEVEL[leek_id] 			= getLevel(leek_id) ;
+			_LEEK_BIRTH_TURN[leek_id]		= getBirthTurn(leek_id) ;
+			_LEEK_LEEK_ID[leek_id]			= getLeekID(leek_id) ;
+			_LEEK_LEEK_NAME[leek_id]		= getName(leek_id) ;
+			_LEEK_FARMER_ID[leek_id]		= getFarmerID(leek_id) ;
+			_LEEK_FARMER_NAME[leek_id]		= getFarmerName(leek_id) ;
+			_LEEK_FARMER_COUNTRY[leek_id]	= getFarmerCountry(leek_id) ;
+			_LEEK_SUMMONER[leek_id]			= getSummoner(leek_id) ;
+			_LEEK_TEAM_ID[leek_id]			= getTeamID(leek_id) ;
+			_LEEK_TEAM_NAME[leek_id]		= getTeamName(leek_id) ;
+
+			_LEEK_ITEMS[leek_id]			= getWeapons(leek_id) + getChips(leek_id) ;
+
+		}
+		
+		// On actualise les caractéristiques de tous les poireaux
+		_LEEK_IS_ALIVE[leek_id] 		= isAlive(leek_id) ;
+		_LEEK_CELL[leek_id] 			= getCell(leek_id) ;
+		_LEEK_CELL_X[leek_id] 			= _CELL_X[_LEEK_CELL[leek_id]] ;
+		_LEEK_CELL_Y[leek_id] 			= _CELL_Y[_LEEK_CELL[leek_id]] ;
+
+		_LEEK_LIFE[leek_id] 			= getLife(leek_id) ;
+		_LEEK_TOTAL_LIFE[leek_id] 		= getTotalLife(leek_id) ;
+		_LEEK_STRENGTH[leek_id] 		= getStrength(leek_id) ;
+		_LEEK_WISDOM[leek_id] 			= getWisdom(leek_id) ;
+		_LEEK_AGILITY[leek_id] 			= getAgility(leek_id) ;
+		_LEEK_RESISTANCE[leek_id]		= getResistance(leek_id) ;
+		_LEEK_SCIENCE[leek_id] 			= getScience(leek_id) ;
+		_LEEK_MAGIC[leek_id] 			= getMagic(leek_id) ;
+		_LEEK_FREQUENCY[leek_id] 		= getFrequency(leek_id) ;
+		_LEEK_TOTAL_TP[leek_id] 		= getTotalTP(leek_id) ;
+		_LEEK_TOTAL_MP[leek_id] 		= getTotalMP(leek_id) ;
+		_LEEK_TP[leek_id] 				= getTP(leek_id) ;
+		_LEEK_MP[leek_id] 				= getMP(leek_id) ;
+
+		_LEEK_ABSOLUTE_SHIELD[leek_id]	= getAbsoluteShield(leek_id) ;
+		_LEEK_RELATIVE_SHIELD[leek_id]	= getRelativeShield(leek_id) ;
+		_LEEK_DAMAGE_RETURN[leek_id]	= getDamageReturn(leek_id) ;
+		_LEEK_EFFECTS[leek_id]			= getEffects(leek_id) ;
+
+		_LEEK_ACCESSIBLE_CELLS[leek_id] = getAccessibleCells(
+											_LEEK_CELL[leek_id],
+											_LEEK_MP[leek_id]
+										  ) ;
+
+	}
+	
+}

@@ -1,0 +1,86 @@
+include('../../main/INCLUDER') ;
+
+//--------------------------------
+//----------- ITEMS --------------
+//--------------------------------
+
+// Recuperer tous les items de la partie
+function getGameItems(){
+	
+	var items = [] ;
+	
+	// Parcourir tous les poireaux
+	for(var leek in getLeeks()){
+		
+		// Parcourir tous les items des poireaux
+		for(var item in getWeapons(leek) + getChips(leek)){
+			
+			// Si il n'est pas encore dans la liste
+			if(!inArray(items, item)){
+			
+				// Ajouter l'item dans la liste
+				push(items, item) ;
+				
+				// Si l'item est un bulb
+				if(inArray(__BULBS, item)){
+
+					// Ajouter tous les items de ce bulb
+					pushAll(items, __BULBS_ITEMS[item]) ;
+
+				}
+			} 
+			
+		}
+		
+	}
+	
+	return items ;
+	
+}
+
+// Renvoie la portée maximale de l'item
+function getItemMaxRange(item){
+	return _ITEMS[item] === 1 ? getWeaponMaxRange(item) : getChipMaxRange(item);
+}
+
+// Renvoie la portée minimale de l'item
+function getItemMinRange(item){
+	return _ITEMS[item] === 1 ? getWeaponMaxRange(item) : getChipMaxRange(item);
+}
+
+// Renvoie le type de zone d'effet de l'item
+function getItemArea(item){
+	return _ITEMS[item] === 1 ? getWeaponArea(item) : getChipArea(item);
+}
+
+// Renvoie le coût en PT de l'item
+function getItemCost(item){
+	return _ITEMS[item] === 1 ? getWeaponCost(item) : getChipCost(item);
+}
+
+// Renvoie le temps de récupération de l'item
+function getItemCooldown(item){
+	return _ITEMS[item] === 1 ? 0 : getChipCooldown(item);
+}
+
+// Détermine si l'item peut être utlisé uniquement en ligne
+function isInlineItem(item){
+	return _ITEMS[item] === 1 ? isInlineWeapon(item) : isInlineChip(item);
+}
+
+// Renvoie si l'item a besoin d'une ligne de vue pour être utilisé
+function itemNeedLos(item){
+	return _ITEMS[item] === 1 ? weaponNeedLos(item) : chipNeedLos(item);
+}
+
+// Renvoie les effets de l'item
+function getItemEffects(item){
+	return _ITEMS[item] === 1 ? getWeaponEffects(item) : getChipEffects(item);
+}
+
+
+
+
+
+
+

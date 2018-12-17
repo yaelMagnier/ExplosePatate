@@ -1,0 +1,31 @@
+//--------------------------------
+//--------- COEFICIENT -----------
+//--------------------------------
+
+
+// On va calculer la valeur des dommages fait a un certain poireau pour décider de nos actions
+global _COEF_HIT_ENEMY_LEEK;
+global _COEF_HIT_ENEMY_BULB;
+global _COEF_HIT_ALLY_LEEK;
+global _COEF_HIT_ALLY_BULB;
+
+//On va calculer la valeur d'un kill fait a un certain poireau pour décider de nos actions
+global _COEF_KILL_ENEMY_LEEK;
+global _COEF_KILL_ENEMY_BULB;
+global _COEF_KILL_ALLY_LEEK;
+global _COEF_KILL_ALLY_BULB;
+
+// On va calculer la valeur du soin fait a un certain poireau pour décider de nos actions
+global _COEF_HEAL_ENEMY_LEEK;
+global _COEF_HEAL_ENEMY_BULB;
+global _COEF_HEAL_ALLY_LEEK;
+global _COEF_HEAL_ALLY_BULB;
+
+// On va calculer la valeur des buffs fait a un certain poireau pour décider de nos actions
+global _COEF_BUFF_ENEMY_LEEK;
+global _COEF_BUFF_ENEMY_BULB;
+global _COEF_BUFF_ALLY_LEEK;
+global _COEF_BUFF_ALLY_BULB;
+
+// Les coeficients d'urgence
+global _COEF_NEED_HEAL; // Quelque chose comme  0.01+(0.05/(x-0.1)) avec x le ratio de la vie de notre poireau (La vie devrais etre comprise entre 0 et 1)

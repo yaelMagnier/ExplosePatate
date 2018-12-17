@@ -1,0 +1,298 @@
+//--------------------------------
+//---------- GLOBALS -------------
+//--------------------------------
+
+/*********************\
+|      GAME INFO      |
+\*********************/
+
+// Statut du mode debug
+global ___DEBUG = true ; 
+
+// Valeur minimal d'une cellule
+global __MIN_CELL = 0; 
+
+// Valeur maximal d'une cellule
+global __MAX_CELL = 612; 
+
+// Cellule centrale
+global __MEAN_CELL = 306;
+
+// Nombre de tours maximum
+global __MAX_TURN = 64; 
+
+// Nombre maximal d'ops
+global __MAX_OPERATIONS = OPERATIONS_LIMIT*0.95; 
+
+// Poireaux contre qui ne pas jouer
+global __NOT_PLAY_AGAINST = []; 
+
+// Tour actuel
+global _TURN; 
+
+// Contexte du combat (test/potager/tournoi/challenge)
+global _FIGHT_CONTEXT; 
+
+// Type de combat (solo/eleveur/equipe)
+global _FIGHT_TYPE; 
+
+/*********************\
+|     ITEMS INFO      |
+\*********************/
+
+// ID du début de la recherche des items
+global __MIN_ITEM 								= 0 ; 
+
+// ID de la fin de la recherche items
+global __MAX_ITEM 								= 150 ; 
+
+// Liste de tous les items en indice
+global _ITEMS 									= [] ;
+
+// Range maximum
+global _ITEM_MAX_RANGE 							= [] ;
+
+// Range minimum
+global _ITEM_MIN_RANGE 							= [] ;
+
+// AOE
+global _ITEM_AREA 								= [] ;
+
+// Cout de l'item
+global _ITEM_COST 								= [] ;
+
+// Cooldown de l'item
+global _ITEM_COOLDOWN 							= [] ;
+
+// En ligne
+global _ITEM_IS_INLINE 							= [] ;
+
+// Besoin d'une vue
+global _ITEM_NEED_LOS 							= [] ;
+
+// Dégats
+global _ITEM_EFFECT_DAMAGE 						= [] ; 
+
+// Poison
+global _ITEM_EFFECT_POISON 						= [] ;
+
+// Bouclier absolu
+global _ITEM_EFFECT_ABSOLUTE_SHIELD 			= [] ;
+
+// Bouclier relatif
+global _ITEM_EFFECT_RELATIVE_SHIELD 			= [] ;
+
+// Soins
+global _ITEM_EFFECT_HEAL 						= [] ;
+
+// Resistance
+global _ITEM_EFFECT_BUFF_RESISTANCE 			= [] ;
+
+// Agilité
+global _ITEM_EFFECT_BUFF_AGILITY 				= [] ;
+
+// Force
+global _ITEM_EFFECT_BUFF_STRENGTH 				= [] ;
+
+// PT
+global _ITEM_EFFECT_BUFF_TP 					= [] ;
+
+// PM
+global _ITEM_EFFECT_BUFF_MP 					= [] ;
+
+// Sagesse
+global _ITEM_EFFECT_BUFF_WISDOM 				= [] ;
+
+// Anti magie
+global _ITEM_EFFECT_SHACKLE_MAGIC 				= [] ;
+
+// anti PT
+global _ITEM_EFFECT_SHACKLE_TP 					= [] ;
+
+// anti PM
+global _ITEM_EFFECT_SHACKLE_MP 					= [] ;
+
+// Anti force
+global _ITEM_EFFECT_SHACKLE_STRENGTH 			= [] ;
+
+// Antidote
+global _ITEM_EFFECT_ANTIDOTE 					= [] ;
+
+// Inversion
+global _ITEM_EFFECT_DAMAGE_RETURN 				= [] ;
+
+// Bulb
+global _ITEM_EFFECT_SUMMON 						= [] ;
+
+// Vie maximale
+global _ITEM_EFFECT_BOOST_MAX_LIFE 				= [] ;
+
+/*********************\
+|      MAP INFO       |
+\*********************/
+
+// Remplace la fonction getCellX()
+global _CELL_X = [];
+
+// Remplace la fonction getCellY()
+global _CELL_Y = [];
+
+// ID des obstacles
+global _OBSTACLES = [];
+
+// ID des obstacles mais en clé
+global _KEY_OBSTACLES = [];
+
+// Marges
+global __MARGES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 53, 70, 88, 105, 123, 140, 157, 175, 193, 210, 228, 245, 263, 280, 298, 315, 333, 350, 368, 385, 403, 420, 438, 455, 473, 490, 508, 525, 543, 560, 561, 578, 579, 580, 581, 582, 583, 584, 585, 586, 587, 588, 589, 590, 591, 592, 593, 594, 595, 596, 597, 598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 576, 577, 559, 542, 524, 507, 489, 472, 454, 437, 419, 402, 384, 367, 349, 332, 314, 297, 279, 262, 244, 227, 209, 192, 174, 157, 139, 122, 104, 87, 69, 51, 52] ;
+
+/*********************\
+|      LEEK INFO      |
+\*********************/
+
+// ID de mon poireau
+global _MY_LEEK;
+
+
+// ID de tous les poireaux
+global _LEEKS = []; 
+
+// Boolean ennemi
+global _LEEK_IS_ENEMY = [];
+
+// Boolean en vie
+global _LEEK_IS_ALIVE = [];
+
+// Boolean bulb
+global _LEEK_IS_BULB = [];
+
+// ID cellule
+global _LEEK_CELL = [];
+
+// X de la cellule
+global _LEEK_CELL_X = [];
+
+// Y de la cellule
+global _LEEK_CELL_Y = [];
+
+// Niveau
+global _LEEK_LEVEL = [];
+
+// Tour d'apparition
+global _LEEK_BIRTH_TURN = [];
+
+// ID globale du poireau
+global _LEEK_LEEK_ID = [];
+
+// Nom du poireau
+global _LEEK_LEEK_NAME = [];
+
+// ID gobale de l'eleveur
+global _LEEK_FARMER_ID = [];
+
+// Nom de l'eleveur
+global _LEEK_FARMER_NAME = [];
+
+// Pays de l'eleveur
+global _LEEK_FARMER_COUNTRY = [] ;
+
+// ID de l'invocateur
+global _LEEK_SUMMONER = [];
+
+// ID de la team
+global _LEEK_TEAM_ID = [];
+
+// Nom de la team
+global _LEEK_TEAM_NAME = [];
+
+
+// Vie
+global _LEEK_LIFE = []; 
+
+// Vie totale
+global _LEEK_TOTAL_LIFE = [];
+
+// Force
+global _LEEK_STRENGTH = [];
+
+// Sagesse
+global _LEEK_WISDOM = [];
+
+// Agilité
+global _LEEK_AGILITY = []; 
+
+// Resistance
+global _LEEK_RESISTANCE = [];
+
+// Science
+global _LEEK_SCIENCE = [];
+
+// Magie
+global _LEEK_MAGIC = [];
+
+// Frequence
+global _LEEK_FREQUENCY = [];
+
+// PT total
+global _LEEK_TOTAL_TP = [];
+
+// PM total
+global _LEEK_TOTAL_MP = [];
+
+// PT
+global _LEEK_TP = [];
+
+// PM
+global _LEEK_MP = [];
+
+
+// Bouclier absolu
+global _LEEK_ABSOLUTE_SHIELD = [] ; 
+
+// Bouclier relatif
+global _LEEK_RELATIVE_SHIELD = [] ;
+
+// Taux de renvoi de dommage
+global _LEEK_DAMAGE_RETURN = [] ; 
+
+// Tableau des ID des items
+global _LEEK_ITEMS = [];
+
+// Tableau des ID des effets en cours
+global _LEEK_EFFECTS = []; 
+
+// Table des dégats des items
+global _LEEK_ITEM_DAMAGE = []; 
+
+
+// Tableau des ID des cases accessibles
+global _LEEK_ACCESSIBLE_CELLS = []; 
+
+
+/*********************\
+|         DEBUG       |
+\*********************/
+
+// COULEUR POUR debugC() et mark()
+global __COLOR_NAVY   = getColor(0, 31, 63);
+global __COLOR_BLUE   = getColor(0, 116, 217);
+global __COLOR_AQUA   = getColor(127, 219, 255);
+global __COLOR_TEAL   = getColor(57, 204, 204);
+global __COLOR_OLIVE  = getColor(61, 153, 112);
+global __COLOR_GREEN  = getColor(46, 204, 64);
+global __COLOR_LIME   = getColor(1,255,112);
+global __COLOR_YELLOW = getColor(255,220,0);
+global __COLOR_ORANGE = getColor(255,133,27);
+global __COLOR_RED    = getColor(255,65,54);
+global __COLOR_MARRON = getColor(133,20,75);
+global __COLOR_FUSHIA = getColor(240,18,190);
+global __COLOR_PURPLE = getColor(177,13,201);
+global __COLOR_BLACK  = getColor(17,17,17);
+global __COLOR_GRAY   = getColor(170,170,170);
+global __COLOR_SILVER = getColor(221,221,221);
+
+// TEMPORARY VALUES FOR OPERATIONS
+global OPERATIONS;
+
+
+

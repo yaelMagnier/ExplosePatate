@@ -1,0 +1,293 @@
+include('../main/INCLUDER') ;
+
+//--------------------------------
+//-------- WEAPONSTRAT -----------
+//--------------------------------
+
+function applyStrat(weapon){
+
+	if(getLife() < getTotalLife()*0.3 and canUseChip(CHIP_REGENERATION, _MY_LEEK)){
+		useChip(CHIP_REGENERATION, _MY_LEEK) ;
+	}
+
+	if(getWeapon() != weapon){
+		setWeapon(weapon) ;
+	}
+	
+	var enemy = getNearestEnemy() ;
+	
+	if(_LEEK_MAGIC[enemy] > 200 and canUseChip(CHIP_FRACTURE, enemy)){
+		useChip(CHIP_FRACTURE, enemy) ;
+	}
+	
+	var shoot_with_secure_cells = getShootWithSecureCells(weapon,_MY_LEEK,enemy) ;
+	
+	var no_AEO_damage = [] ;
+	
+	if(!isEmpty(shoot_with_secure_cells)){
+		
+		for(var cell : var data in shoot_with_secure_cells){
+			
+			if(data[3] > 3) no_AEO_damage[cell] = data ;
+			
+		}
+	}
+	
+	var shoot_without_back = [] ;
+	
+	
+	if(!isEmpty(no_AEO_damage)){
+		for(var cell : var data in no_AEO_damage){
+
+			if(!isEmpty(data[4])){
+				shoot_without_back[cell] = data ;
+			}
+
+		}
+	}
+		
+	if(!isEmpty(shoot_without_back)){
+			
+		debug('Shoot and Hide') ;
+			
+		var more_on_enemy = [] ;
+		var moe_val = -1 ;
+		
+		for(var cell : var data in shoot_without_back){
+			
+			if(isEmpty(more_on_enemy) or moe_val === -1 or data[3] < moe_val){
+				
+				more_on_enemy = [] ;
+				more_on_enemy[cell] = data ;
+				moe_val = data[3] ;
+				
+			}
+			
+		}
+		
+		var longest_cell = [] ;
+		
+		for(var cell : var data in more_on_enemy){
+			
+			if(isEmpty(longest_cell) or 
+			  getCellDistance(longest_cell[0], getCell(enemy)) < getCellDistance(data[0], getCell(enemy))){
+				
+				longest_cell = data ;
+				
+			}
+			
+		}
+		
+		moveTowardCell(longest_cell[0]) ;
+		
+		var number_shoot = floor(getTP()/getWeaponCost(weapon)) ;
+		
+		for(var i=0 ; i<=number_shoot;i++){
+			
+			useWeaponOnCell(longest_cell[1]) ;
+			
+		}
+		
+		var secure_cells = getKeys(longest_cell[4]) ;
+		
+		moveTowardCell(secure_cells[0]) ;
+		
+	}else{
+		
+		var not_secure_cells = getNotSecureCells(enemy) ;
+		
+		var secure_cells = [] ;
+		
+		for(var cell : var cost in _LEEK_ACCESSIBLE_CELLS[_MY_LEEK]){
+			
+			if(!inArray(not_secure_cells, cell)){
+				
+				secure_cells[cell] = cost ;
+				
+			}
+			
+		}
+		
+		if(!isEmpty(secure_cells)){
+			debug('Hide') ;
+			
+			var nearest_secure_cell = -1 ;
+
+			for(var cell : var cost in secure_cells){
+
+				if(nearest_secure_cell == -1 or 
+				  getCellDistance(nearest_secure_cell, getCell(enemy)) > getCellDistance(cell, getCell(enemy))){
+
+					nearest_secure_cell = cell ;
+
+				}
+
+			}
+			
+			moveTowardCell(nearest_secure_cell) ;
+			
+		}else{
+			
+			if(!isEmpty(no_AEO_damage)){
+			
+				debug('Shoot') ;
+				
+				var more_on_enemy = [] ;
+				var moe_val = -1 ;
+
+				for(var cell : var data in no_AEO_damage){
+
+					if(isEmpty(more_on_enemy) or moe_val === -1 or data[3] < moe_val){
+
+						more_on_enemy = [] ;
+						more_on_enemy[cell] = data ;
+						moe_val = data[3] ;
+
+					}
+
+				}
+
+				var longest_cell = [] ;
+
+				for(var cell : var data in more_on_enemy){
+
+					if(isEmpty(longest_cell) or 
+					  getCellDistance(longest_cell[0], getCell(enemy)) < getCellDistance(data[0], getCell(enemy))){
+
+						longest_cell = data ;
+
+					}
+
+				}
+				
+				
+		
+				moveTowardCell(longest_cell[0]) ;
+
+				var number_shoot = floor(getTP()/getWeaponCost(weapon)) ;
+
+				for(var i=0 ; i<=number_shoot;i++){
+
+					useWeaponOnCell(longest_cell[1]) ;
+
+				}
+				
+			}else{
+				
+				debug('Flee') ;
+				
+				moveAwayFromCell(getCell(enemy)) ;
+				
+			}
+			
+			
+		}
+		
+	}
+	
+	if(getLife() < getTotalLife() and canUseChip(CHIP_VACCINE, _MY_LEEK)){
+		useChip(CHIP_VACCINE, _MY_LEEK) ;
+	}
+	
+	if(getLife() < getTotalLife() and canUseChip(CHIP_CURE, _MY_LEEK)){
+		useChip(CHIP_CURE, _MY_LEEK) ;
+	}
+	
+	if(_LEEK_STRENGTH[enemy] >= 200 and canUseChip(CHIP_ARMOR, _MY_LEEK)){
+		useChip(CHIP_ARMOR, _MY_LEEK) ;
+	}
+	
+	if(_LEEK_STRENGTH[enemy] >= 200 and canUseChip(CHIP_FORTRESS, _MY_LEEK)){
+		useChip(CHIP_FORTRESS, _MY_LEEK) ;
+	}
+	
+	if(canUseChip(CHIP_ARMORING, _MY_LEEK)){
+		useChip(CHIP_ARMORING, _MY_LEEK) ;
+	}
+	
+	if(getLife() < getTotalLife() and canUseChip(CHIP_CURE, _MY_LEEK)){
+		useChip(CHIP_CURE, _MY_LEEK) ;
+	}
+}
+
+// Retourne un tableau [cell: [cell,cell_to_shoot,dist(cell_to_shoot,cell_leek2),dist(cell,cell_to_shoot)]] pour les cellules accessibles depuis lesquels le leek1 peut tirer sur le leek2 avec l'arme weapon
+function getShootCells(weapon,leek1, leek2){
+	
+	// On récupère les cellules d'ou on peut le toucher avec ou sans AOE
+	var targetable_cells_with_AOE = getTargetableCellsWithAOE(weapon, _LEEK_CELL[leek2]) ;
+	
+	for(var cell : var data in targetable_cells_with_AOE){
+		targetable_cells_with_AOE[cell] = data+[getCellDistance(data[0],data[1])];
+	}
+	
+	var accessible_cells = getAccessibleCells(_LEEK_CELL[leek1], _LEEK_MP[leek1]) ;
+	var keys_accessible_cells = getKeys(accessible_cells) ;
+	
+	// On calcule les cellules communes
+	var commun_cells = [] ;
+	
+	for(var cell : var data in targetable_cells_with_AOE){
+		
+		if(inArray(keys_accessible_cells, cell)){
+			commun_cells[cell] = data ;
+		}
+		
+	}
+	
+	return commun_cells ;
+	
+}
+
+function getShootWithSecureCells(weapon, leek1, leek2){
+	
+	var shoot_secure_cells = getShootCells(weapon,leek1,leek2) ;
+	
+	var not_secure_cells = getNotSecureCells(leek2) ;
+	
+	for(var cell : var data in shoot_secure_cells){
+		
+		var secure_cells = getAccessibleCells(cell,_LEEK_MP[leek1]-getCellDistance(_LEEK_CELL[leek1], cell)) ;
+		
+		for(var accessible_cell : var accessible_cost in secure_cells){
+			
+			if(inArray(not_secure_cells, accessible_cell)){
+				
+				removeKey(secure_cells, accessible_cell) ;
+				
+			}
+			
+		}
+		
+		shoot_secure_cells[cell] = data + [secure_cells] ;
+		
+	}
+	
+	return shoot_secure_cells ;
+	
+}
+
+function getNotSecureCells(leek){
+	
+	var notSecureCells = [] ;
+	
+	for(var item in _LEEK_ITEMS[leek]){
+
+		if(not (item === CHIP_SPARK) and (!isEmpty(_ITEM_EFFECT_DAMAGE[item]) or !isEmpty(_ITEM_EFFECT_POISON[item]))){
+	
+			var AOE = _ITEM_AREA[item]-2 ;
+	
+			for(var cell : var cost in _LEEK_ACCESSIBLE_CELLS[leek]){
+				
+				for(var targetable_cell in getTargetableCells(item,cell)){
+					
+					notSecureCells[targetable_cell] = 0 ;
+					
+				}
+				
+			}
+		}
+	}
+	
+	return getKeys(notSecureCells) ;
+	
+}
