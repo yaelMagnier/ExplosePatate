@@ -18,10 +18,6 @@ if (_TURN === 1) {
 				break ;
 			}
 		}
-	}
-	// S'eloigne initialement des marges is sur les marges
-	if (inArray(__MARGES,_LEEK_CELL[_MY_LEEK])) {
-		moveAwayFromCells(__MARGES, 2);
 	}	
 } else {
 	update();
