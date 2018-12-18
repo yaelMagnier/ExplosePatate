@@ -5,6 +5,7 @@ include('../../main/INCLUDER') ;
 //--------------------------------
 
 global _SPAQUETS = [] ;
+_SPAQUETS = [] ;
 
 global PAQUET_TYPE_ENEMY = 1 ;
 global PAQUET_TYPE_MYSELF = 2 ;
@@ -55,7 +56,7 @@ function setSPaquets(enemy){
 		
 	}
 	
-	for(var cell : var cost in _LEEK_ACCESSIBLE_CELLS){
+	for(var cell : var cost in _LEEK_ACCESSIBLE_CELLS[_MY_LEEK]){
 		
 		push(_SPAQUETS, [PAQUET_TYPE_MOVE, cell]) ;
 		
