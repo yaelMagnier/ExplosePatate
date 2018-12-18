@@ -80,12 +80,12 @@ function getItemEffects(item){
 
 function getItemTrueDamage(item,leek1,leek2) {
 	var damage = 0;
-	var isEnemy = _LEEK_IS_ENEMY[leek1] == _LEEK_IS_ENEMY[leek2];
-	var needToTarget = (isEnemy ? EFFECT_TARGET_ALLIES : EFFECT_TARGET_ENEMIES) 
-	& (_LEEK_IS_BULB[leek2] ? EFFECT_TARGET_SUMMONS : EFFECT_TARGET_NON_SUMMONS);
-	
+	var areEnemy = _LEEK_IS_ENEMY[leek1] == _LEEK_IS_ENEMY[leek2];
+	var needToTarget = (areEnemy ? EFFECT_TARGET_ALLIES : EFFECT_TARGET_ENEMIES) 
+	| (_LEEK_IS_BULB[leek2] ? EFFECT_TARGET_SUMMONS : EFFECT_TARGET_NON_SUMMONS);
+
 	for (var effectDamage in _ITEM_EFFECT_DAMAGE[item]) {
-		if (effectDamage != [] and effectDamage[3] & needToTarget) {
+		if (effectDamage != [] and effectDamage[3] & needToTarget != 0) {
 			damage += ((effectDamage[0] + effectDamage[1]) / 2 * 
 	(1+ (_LEEK_STRENGTH[leek1] > 0 ? _LEEK_STRENGTH[leek1]/100 : 0)) *
 	(1+(_LEEK_RELATIVE_SHIELD[leek2]>0 ? _LEEK_RELATIVE_SHIELD[leek2]/100 : 0)) -
@@ -93,12 +93,12 @@ function getItemTrueDamage(item,leek1,leek2) {
 		}
 	}
 	for (var effectPoison in _ITEM_EFFECT_POISON[item]) {
-		if (effectPoison != [] and effectPoison[3] & needToTarget) {
+		if (effectPoison != [] and effectPoison[3] & needToTarget != 0) {
 			damage += ((effectPoison[0] + effectPoison[1] )/ 2 * (1 + (_LEEK_MAGIC[leek1] > 0 ? _LEEK_MAGIC[leek1] / 100 : 0)));
 		}
 	}
 	for (var effectHeal in _ITEM_EFFECT_HEAL[item]) {
-		if (effectHeal != [] and effectHeal[3] & needToTarget) {
+		if (effectHeal != [] and effectHeal[3] & needToTarget != 0) {
 			damage -= ((effectHeal[0] + effectHeal[1]) / 2 * (1 + (_LEEK_WISDOM[leek1] > 0 ? _LEEK_WISDOM[leek1] / 100 : 0)));
 		}
 	}
