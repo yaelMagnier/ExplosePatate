@@ -9,6 +9,9 @@
 // Statut du mode debug
 global ___DEBUG = true ; 
 
+// Dégats maximum a ignorer
+global ___IGNORE_DAMAGE_COEF = 0.05 ;
+
 // Valeur minimal d'une cellule
 global __MIN_CELL = 0; 
 

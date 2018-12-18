@@ -66,8 +66,23 @@ function applyStrat(weapon){
 	
 	var enemy = chooseEnemy() ;
 	
-	if(_LEEK_MAGIC[enemy] > 200 and canUseChip(CHIP_FRACTURE, enemy)){
-		useChip(CHIP_FRACTURE, enemy) ;
+	var no_return_damage = false ;
+	var max_damage = 0 ;
+	
+	for(var item in _LEEK_ITEMS[enemy]){
+		
+		var damage = getItemTrueDamage(item, _MY_LEEK, enemy) ;
+		
+		if(damage > max_damage){
+		
+			max_damage = damage ;
+			
+		}
+		
+	}
+	
+	if(max_damage < _LEEK_TOTAL_LIFE[_MY_LEEK]*___IGNORE_DAMAGE_COEF){
+		no_return_damage = true ;
 	}
 	
 	var shoot_with_secure_cells = getShootWithSecureCells(weapon,_MY_LEEK,enemy) ;
@@ -96,7 +111,7 @@ function applyStrat(weapon){
 		}
 	}
 		
-	if(!isEmpty(shoot_without_back)){
+	if(!no_return_damage and !isEmpty(shoot_without_back)){
 			
 		debug('Shoot and Hide') ;
 			
@@ -158,7 +173,7 @@ function applyStrat(weapon){
 			
 		}
 		
-		if(!isEmpty(secure_cells)){
+		if(!no_return_damage and !isEmpty(secure_cells)){
 			debug('Hide') ;
 			
 			var nearest_secure_cell = -1 ;
