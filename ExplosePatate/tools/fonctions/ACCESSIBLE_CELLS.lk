@@ -21,7 +21,7 @@ function getLeeksCells(){
 
 function initB(){
 	for(var cell=0;cell<=615;cell++){
-		if(!isObstacle(cell) and !__MARGES[cell]){
+		if(!isObstacle(cell)){
 
 			var xv = getCellX(cell) ;
 			var yv = getCellY(cell) ;
@@ -54,7 +54,7 @@ function initTurn(){
 						getCellFromXY(xv, yv-1)] ;
 
 			for(var adj in adjs){
-				if(adj != null and !isObstacle(adj) and !__MARGES[adj]){
+				if(adj != null and !isObstacle(adj)){
 					neighbours_cache[adj][oldLeekCell] = 0 ;
 				}
 			}
@@ -72,7 +72,7 @@ function initTurn(){
 						getCellFromXY(xv, yv-1)] ;
 
 			for(var adj in adjs){
-				if(adj != null and !isObstacle(adj) and !__MARGES[adj]){
+				if(adj != null and !isObstacle(adj)){
 					removeKey(neighbours_cache[adj],leekCell) ;
 				}
 			}
