@@ -1,0 +1,41 @@
+include("../../main/INCLUDER");
+
+function chooseEnemy(){
+	
+	var enemy = getNearestEnemy() ;
+	
+	var life;
+	
+	do {
+		life = getLife(enemy);
+		for(var effect in _LEEK_EFFECTS){
+		
+			if(effect[0] == EFFECT_POISON){
+				
+				life-=effect[1] ;
+				
+			}
+			
+		}
+		
+		var pre_enemy = enemy ;
+		enemy = -1 ;
+		
+		for(var leek in _LEEKS){
+			
+			if(_LEEK_IS_ENEMY[leek] and _LEEK_IS_ALIVE[leek]){
+				
+				if(leek != pre_enemy and getCellDistance(_LEEK_CELL[leek], _LEEK_CELL[_MY_LEEK])
+					< getCellDistance(_LEEK_CELL[enemy], _LEEK_CELL[_MY_LEEK])){
+					enemy = leek ;
+				}
+				
+			}
+			
+		}
+		
+	} while (life <= 0);
+	
+	return enemy ;
+	
+}
