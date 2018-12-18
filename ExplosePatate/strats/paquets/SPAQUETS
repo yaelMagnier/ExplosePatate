@@ -55,6 +55,10 @@ function setSPaquets(enemy){
 		
 	}
 	
-	
+	for(var cell : var cost in _LEEK_ACCESSIBLE_CELLS){
+		
+		push(_SPAQUETS, [PAQUET_TYPE_MOVE, cell]) ;
+		
+	}
 	
 }
