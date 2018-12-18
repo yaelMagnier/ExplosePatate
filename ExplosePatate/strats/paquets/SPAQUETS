@@ -5,6 +5,11 @@ include('../../main/INCLUDER') ;
 //--------------------------------
 
 global _SPAQUETS = [] ;
+_SPAQUETS = [] ;
+
+global PAQUET_TYPE_ENEMY = 1 ;
+global PAQUET_TYPE_MYSELF = 2 ;
+global PAQUET_TYPE_MOVE = 3 ;
 
 function setSPaquets(enemy){
 	
@@ -39,15 +44,21 @@ function setSPaquets(enemy){
 
 			if(cell_from_shoot and getCellDistance(cell_from_shoot, my_cell) <= my_mp){
 
-				push(_SPAQUETS, [item,cell_from_shoot]) ;
+				push(_SPAQUETS, [PAQUET_TYPE_ENEMY,item,cell_from_shoot]) ;
 
 			}
 			
 		}else{
 			
-			// Non terminé
+			push(_SPAQUETS, [PAQUET_TYPE_MYSELF,item]) ;
 			
 		}
+		
+	}
+	
+	for(var cell : var cost in _LEEK_ACCESSIBLE_CELLS[_MY_LEEK]){
+		
+		push(_SPAQUETS, [PAQUET_TYPE_MOVE, cell]) ;
 		
 	}
 	
