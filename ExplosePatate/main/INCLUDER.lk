@@ -4,16 +4,15 @@
 
 include("../tools/GLOBALS");
 include("../tools/fonctions/OTHERS");
-include("../tools/static/ITEMS");
 include("../tools/static/BULBES");
 include("../tools/fonctions/ITEMS");
+include("../tools/fonctions/LEEKS");
 include("../tools/REGISTERS");
 include("../tools/fonctions/ACCESSIBLE_CELLS");
 include("../tools/maps/MAP_OF_DAMAGE");
 include("../tools/COEFICIENTS");
 include("SETTER");
 include("UPDATER");
-include("../strats/BASIC");
 include("../strats/WEAPONSTRAT");
 include("../strats/paquets/PAQUETS");
 include("../strats/paquets/SPAQUETS");
