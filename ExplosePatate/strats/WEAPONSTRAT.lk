@@ -8,19 +8,19 @@ function chooseEnemy(){
 	
 	var enemy = getNearestEnemy() ;
 	
-	var life = getLife(enemy) ;
+	var life;
 	
-	for(var effect in _LEEK_EFFECTS){
+	do {
+		life = getLife(enemy);
+		for(var effect in _LEEK_EFFECTS){
 		
-		if(effect[0] == EFFECT_POISON){
-			
-			life-=effect[1] ;
+			if(effect[0] == EFFECT_POISON){
+				
+				life-=effect[1] ;
+				
+			}
 			
 		}
-		
-	}
-	
-	if(life <= 0){
 		
 		var pre_enemy = enemy ;
 		enemy = -1 ;
@@ -38,7 +38,7 @@ function chooseEnemy(){
 			
 		}
 		
-	}
+	} while (life <= 0);
 	
 	return enemy ;
 	
