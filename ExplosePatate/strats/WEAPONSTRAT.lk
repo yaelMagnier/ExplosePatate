@@ -220,7 +220,7 @@ function applyStrat(weapon){
 					
 					useChip(CHIP_TELEPORTATION, _MY_LEEK) ;
 					
-				}else{
+				}else {
 
 					debug('flee !!!') ;
 
