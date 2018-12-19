@@ -220,11 +220,16 @@ function applyStrat(weapon){
 					
 					useChip(CHIP_TELEPORTATION, _MY_LEEK) ;
 					
-				}else{
+				}else if (getDistance(_LEEK_CELL[_MY_LEEK], _LEEK_CELL[enemy]) < ___MAX_DIST_TO_FLEE - _LEEK_MP[enemy] - _LEEK_MP[_MY_LEEK]){
 
 					debug('flee !!!') ;
 
 					moveAwayFromCell(_LEEK_CELL[enemy]) ;
+				} else {
+					
+					debug('Approach slowly');
+				
+					moveToward(enemy);
 				}
 				
 			}
