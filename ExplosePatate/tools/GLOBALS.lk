@@ -12,6 +12,9 @@ global ___DEBUG = true ;
 // Dégats maximum a ignorer
 global ___IGNORE_DAMAGE_COEF = 0.05 ;
 
+// Max distance from wich we consider we can approach the enemy instead of fleeing
+global ___MAX_DIST_TO_FLEE = 10;
+
 // Valeur minimal d'une cellule
 global __MIN_CELL = 0; 
 
@@ -301,6 +304,3 @@ global __COLOR_SILVER = getColor(221,221,221);
 
 // TEMPORARY VALUES FOR OPERATIONS
 global OPERATIONS;
-
-
-
