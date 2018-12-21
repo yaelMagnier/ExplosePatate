@@ -126,7 +126,7 @@ function getTargetableCells(@item,@cell){
 			// Calcul de la distance entre ma position et la position autour
 			if(((x-x1)<0?x1-x:x-x1)+(y-y1<0?y1-y:y-y1) <= max_range){
 				var shooted_cell = getCellFromXY(x1,y1) ;
-				if(shooted_cell
+				if(shooted_cell and !_KEY_OBSTACLES[shooted_cell]
 				and (!inline or isOnSameLine(shooted_cell,cell))
 				and (!need_los or lineOfSight(cell, shooted_cell))){
 					targetable_cells[shooted_cell] = 0 ;
