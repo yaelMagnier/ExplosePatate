@@ -16,8 +16,66 @@ global PAQUET_TYPE_MOVE = 3 ;
 
 // Exclure regen ?
 // Durée de l'action directement multiplié, diminue ainsi l'effet des défenses absolues.
-// Cout du déplacement initiale mal pris en compte
-// Etincelle a des endroits wtf
+// Cout du changement d'arme
+// Arme en début de partie
+// Obstacles non pris en compte
+
+function execute(enemy){
+
+	setSPaquets(enemy) ;
+	listing_step_1() ;
+	listing_step_2() ;
+	var scenario = eval2(enemy) ;
+	debugW('tour ' + _TURN + ', scenario: ' + scenario) ;
+	
+	for(var boost in scenario[PAQUET_TYPE_MYSELF][0]){
+	
+		boost = boost[0] ;
+		useChip(boost, _MY_LEEK) ;
+	}
+	
+	//debug('Scenario offensif: ' + scenario[PAQUET_TYPE_ENEMY]) ;
+		
+	for(var attack in scenario[PAQUET_TYPE_ENEMY]){
+
+		if(typeOf(attack) === TYPE_ARRAY and !isEmpty(attack)){
+
+			var position = attack[1] ;
+			attack = attack[0] ;
+
+			moveTowardCell(position) ;
+
+			if(_ITEMS[attack] === 1){
+
+				if(getWeapon() != attack) setWeapon(attack) ;
+
+				useWeapon(enemy) ;
+
+			}else{
+
+				 useChip(attack, enemy);
+
+			}
+
+		}else{
+
+			debugW('near') ;
+			moveTowardCell(getCell(enemy)) ;
+
+		}
+	}
+	
+}
+
+/*
+
+	return [[life_boost, total_life_boost, strenght_boost, wisdom_boost, agility_boost, resistance_boost, 
+			magic_boost, tp_boost, mp_boost, absolute_shield_boost, relative_shield_boost, antidote],
+			[enemy_strenght_boost, enemy_magic_boost, enemy_tp_boost, enemy_mp_boost, enemy_relative_shield_boost],
+			combo[1]];
+	
+
+*/
 
 function simulFight(enemy,paquet_enemy,paquet_group){
 	
@@ -49,14 +107,14 @@ function simulFight(enemy,paquet_enemy,paquet_group){
 										* (1 + enemy_resistance / 100) + paquet_group[1][4]))/100 ;
 	
 	// Items négatifs
-	for(var paquet in paquet_enemy[0]){
+	for(var paquet in paquet_enemy){
 	
 		var item = paquet[0] ;
 		
-		if(!isEmpty(_ITEM_EFFECT_SHACKLE_MAGIC[item]) 
+		if(item and (!isEmpty(_ITEM_EFFECT_SHACKLE_MAGIC[item]) 
 		  or !isEmpty(_ITEM_EFFECT_SHACKLE_TP[item]) 
 		  or !isEmpty(_ITEM_EFFECT_SHACKLE_MP[item]) 
-		  or !isEmpty(_ITEM_EFFECT_SHACKLE_STRENGTH[item])){
+		  or !isEmpty(_ITEM_EFFECT_SHACKLE_STRENGTH[item]))){
 		  	
 			for(var effect in _ITEM_EFFECT_SHACKLE_MAGIC[item]){
 				
@@ -87,12 +145,12 @@ function simulFight(enemy,paquet_enemy,paquet_group){
 	}
 	
 	// Items d'attaque
-	for(var paquet in paquet_enemy[0]){
+	for(var paquet in paquet_enemy){
 		
 		var item = paquet[0] ;
 		
-		if(!isEmpty(_ITEM_EFFECT_DAMAGE[item]) 
-		  or !isEmpty(_ITEM_EFFECT_POISON[item])){
+		if(item and (!isEmpty(_ITEM_EFFECT_DAMAGE[item]) 
+		  or !isEmpty(_ITEM_EFFECT_POISON[item]))){
 		  	
 			for(var effect in _ITEM_EFFECT_DAMAGE[item]){
 			
@@ -116,7 +174,8 @@ function simulFight(enemy,paquet_enemy,paquet_group){
 		
 	}
 	
-	return ((1-enemy_life/enemy_initial_life)-(1-life/initial_life))*100 ; //*100;
+	//return [(1-enemy_life/enemy_initial_life)*100,(1-life/initial_life)*100,
+			return ((1-enemy_life/enemy_initial_life)-(1-life/initial_life))*100 ; //] ;
 	
 }
 
@@ -137,6 +196,11 @@ function eval2(enemy){
 		
 		// Evaluation du cout du paquet
 		var paquet_enemy_cost = getCost(paquet_enemy) ;
+		
+		/*debugC('paquet: ' + paquet_enemy, COLOR_BLUE) ;
+		debugC('paquet cost: ' + paquet_enemy_cost, COLOR_BLUE) ;
+		debugC('paquet simul: ' + simulFight(enemy, paquet_enemy, all_eval_1[0]), COLOR_BLUE) ;
+		debugC('---------------------------------', COLOR_BLUE) ;*/
 		
 		for(var id : var paquet_group in all_eval_1){
 			
@@ -159,7 +223,7 @@ function eval2(enemy){
 		
 	}
 	
-	return [max_res, paquets];
+	return paquets;
 	
 }
 
@@ -295,7 +359,6 @@ INTERACTION_COST = [10000: []] ;
 function listing_step_2(){
 	
 	for(var item in _SPAQUETS[1]){
-		if(_TURN === 3) debugW(item) ;
 		INTERACTION_COST[item[0]] = [] ;
 		INTERACTION_COST[10000][item[0]] = getPathLength(_LEEK_CELL[_MY_LEEK], item[1]) ; 
 		for(var item_b in _SPAQUETS[1]){
@@ -305,7 +368,6 @@ function listing_step_2(){
 		}	
 	}
 
-	var boost_combo = [[[],0]] ;
 	var max_pt = _LEEK_TP[_MY_LEEK] ;
 	var max_pm = _LEEK_MP[_MY_LEEK] ;
 	
@@ -372,7 +434,7 @@ function setSPaquets(enemy){
 
 			for(var cell in getTargetableCells(item,enemy_cell)){
 
-				if(!cell_from_shoot or getCellDistance(my_cell, cell) < getCellDistance(my_cell, cell_from_shoot)){
+				if(!cell_from_shoot or getPathLength(my_cell, cell) < getPathLength(my_cell, cell_from_shoot)){
 
 					cell_from_shoot = cell ;
 
@@ -380,7 +442,7 @@ function setSPaquets(enemy){
 
 			}
 
-			if(cell_from_shoot and getCellDistance(cell_from_shoot, my_cell) <= my_mp){
+			if(cell_from_shoot and getPathLength(cell_from_shoot, my_cell) <= my_mp){
 
 				push(_SPAQUETS[PAQUET_TYPE_ENEMY], [item,cell_from_shoot]) ;
 
