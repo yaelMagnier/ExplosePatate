@@ -8,20 +8,8 @@ include("INCLUDER");
 _TURN = getTurn() ;
 
 global is_fight = true ;
-if (_TURN === 1) {
-  init();
-  update();
-  if(_FIGHT_CONTEXT == FIGHT_CONTEXT_CHALLENGE and _FIGHT_TYPE == FIGHT_TYPE_SOLO)	{
-  	for(var leek in __NOT_PLAY_AGAINST){
-			if(inArray(_LEEK_FARMER_NAME, leek)){
-				is_fight = false ;
-				break ;
-			}
-		}
-	}	
-} else {
-	update();
-}
+if (_TURN === 1) init();
+update();
 
 if(is_fight) applyStrat(WEAPON_GAZOR) ;
 else{
