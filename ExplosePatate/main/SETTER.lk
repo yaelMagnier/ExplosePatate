@@ -95,4 +95,14 @@ function init(){
 		
 	}
 	
+	if(_FIGHT_CONTEXT == FIGHT_CONTEXT_CHALLENGE and _FIGHT_TYPE == FIGHT_TYPE_SOLO)	{
+		for(var leek in __NOT_PLAY_AGAINST){
+			if(inArray(_LEEK_FARMER_NAME, leek)){
+				_IS_FIGHT = false ;
+				break ;
+			}
+		}
+	
+	}
+	
 }

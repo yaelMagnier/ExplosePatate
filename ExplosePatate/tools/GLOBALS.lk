@@ -39,6 +39,9 @@ global _FIGHT_CONTEXT;
 // Type de combat (solo/eleveur/equipe)
 global _FIGHT_TYPE; 
 
+// Détermine si il faut se battre ou non
+global _IS_FIGHT ;
+
 /*********************\
 |     ITEMS INFO      |
 \*********************/
