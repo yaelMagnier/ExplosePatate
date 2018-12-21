@@ -5,11 +5,339 @@ include('../../main/INCLUDER') ;
 //--------------------------------
 
 global _SPAQUETS = [] ;
-_SPAQUETS = [] ;
+_SPAQUETS = [1: [], 2: [], 3: []] ;
+
+global _SPAQUETS_LISTING = [] ;
+_SPAQUETS_LISTING = [1: [], 2: [], 3: []] ;
 
 global PAQUET_TYPE_ENEMY = 1 ;
 global PAQUET_TYPE_MYSELF = 2 ;
 global PAQUET_TYPE_MOVE = 3 ;
+
+// Exclure regen ?
+// Durée de l'action directement multiplié, diminue ainsi l'effet des défenses absolues.
+// Cout du déplacement initiale mal pris en compte
+// Etincelle a des endroits wtf
+
+function simulFight(enemy,paquet_enemy,paquet_group){
+	
+	var wisdom = 1 + ((_LEEK_WISDOM[_MY_LEEK] + paquet_group[0][3])/100);
+	var life = (_LEEK_LIFE[_MY_LEEK] + paquet_group[0][0]+paquet_group[0][1])*wisdom;
+	var total_life = (_LEEK_TOTAL_LIFE[_MY_LEEK] + paquet_group[0][1])*wisdom;
+	var science = 1 + (_LEEK_SCIENCE[_MY_LEEK]/100) ;
+	var agility = 1 + ((_LEEK_AGILITY[_MY_LEEK]+paquet_group[0][4]*science)/100) ;
+	var strength = 1 + (_LEEK_STRENGTH[_MY_LEEK]+paquet_group[0][2]*science) / 100 ;
+	var magic = 1 + (_LEEK_MAGIC[_MY_LEEK]+paquet_group[0][6]*science) / 100 ;
+	var resistance = 1 + (_LEEK_RESISTANCE[_MY_LEEK] + paquet_group[0][5]*science)/100 ;
+	var absolute_shield = (_LEEK_ABSOLUTE_SHIELD[_MY_LEEK] + paquet_group[0][9]) * resistance ;
+	var relative_shield = 1 - ((_LEEK_RELATIVE_SHIELD[_MY_LEEK] * (1 + resistance / 100) + paquet_group[0][10]))/100 ;
+	//(1 - (_LEEK_RELATIVE_SHIELD[_MY_LEEK] + paquet_group[0][10]) * resistance)/100 ;
+	//var tp ;
+	//var mp ;
+	
+	var enemy_science = 1+(_LEEK_SCIENCE[enemy]/100) ;
+	var enemy_life = _LEEK_LIFE[enemy] ;
+	var enemy_initial_life = _LEEK_LIFE[enemy] ;
+	var enemy_tp = _LEEK_TP[enemy] + paquet_group[1][2]*enemy_science ;
+	var enemy_mp = _LEEK_MP[enemy] + paquet_group[1][3]*enemy_science ;
+	var enemy_magic = 1 + (_LEEK_MAGIC[enemy]+paquet_group[1][1]*enemy_science) / 100 ;
+	var enemy_strength = 1 + (_LEEK_STRENGTH[enemy]+paquet_group[1][0]*enemy_science) / 100 ;
+	var enemy_resistance = 1 + _LEEK_RESISTANCE[enemy]/100 ;
+	var enemy_absolute_shield = _LEEK_ABSOLUTE_SHIELD[enemy] * (1+enemy_resistance/100);
+	var enemy_relative_shield =  1 - ((_LEEK_RELATIVE_SHIELD[enemy]
+										* (1 + enemy_resistance / 100) + paquet_group[1][4]))/100 ;
+	
+	// Items négatifs
+	for(var paquet in paquet_enemy[0]){
+	
+		var item = paquet[0] ;
+		
+		if(!isEmpty(_ITEM_EFFECT_SHACKLE_MAGIC[item]) 
+		  or !isEmpty(_ITEM_EFFECT_SHACKLE_TP[item]) 
+		  or !isEmpty(_ITEM_EFFECT_SHACKLE_MP[item]) 
+		  or !isEmpty(_ITEM_EFFECT_SHACKLE_STRENGTH[item])){
+		  	
+			for(var effect in _ITEM_EFFECT_SHACKLE_MAGIC[item]){
+				
+				enemy_magic -= (effect[0]+effect[1])/2 * (effect[2] > 0 ? effect[2] : 1) ;
+				
+			}
+			
+			for(var effect in _ITEM_EFFECT_SHACKLE_TP[item]){
+				
+				enemy_tp -= (effect[0]+effect[1])/2 * (effect[2] > 0 ? effect[2] : 1) ;
+				
+			}
+			
+			for(var effect in _ITEM_EFFECT_SHACKLE_MP[item]){
+				
+				enemy_mp -= (effect[0]+effect[1])/2 * (effect[2] > 0 ? effect[2] : 1) ;
+				
+			}
+			
+			for(var effect in _ITEM_EFFECT_SHACKLE_STRENGTH[item]){
+				
+				enemy_strength -= (effect[0]+effect[1])/2 * (effect[2] > 0 ? effect[2] : 1) ;
+				
+			}
+			
+		}
+		
+	}
+	
+	// Items d'attaque
+	for(var paquet in paquet_enemy[0]){
+		
+		var item = paquet[0] ;
+		
+		if(!isEmpty(_ITEM_EFFECT_DAMAGE[item]) 
+		  or !isEmpty(_ITEM_EFFECT_POISON[item])){
+		  	
+			for(var effect in _ITEM_EFFECT_DAMAGE[item]){
+			
+				enemy_life -= ( (effect[0]+effect[1])/2 
+								* strength
+								* enemy_relative_shield
+								- enemy_absolute_shield
+							  ) * (effect[2] > 0 ? effect[2] : 1) ;
+							  
+			}
+
+			for(var effect in _ITEM_EFFECT_POISON[item]){
+			
+				enemy_life -= ( (effect[0]+effect[1])/2 
+								* magic
+							  ) * (effect[2] > 0 ? effect[2] : 1) ;
+							  
+			}
+			
+		}
+		
+	}
+	
+	return (1-enemy_life/enemy_initial_life)*100;
+	
+}
+
+function eval2(enemy){
+	
+	var all_eval_1 = [] ;
+	
+	for(var id : var paquet_group in _SPAQUETS_LISTING[PAQUET_TYPE_MYSELF]){
+	
+		all_eval_1[id] = eval_1(enemy, paquet_group) ;
+		
+	}
+	
+	var max_res ;
+	var paquets = [] ;
+	
+	for(var id_paq_en : var paquet_enemy in _SPAQUETS_LISTING[PAQUET_TYPE_ENEMY]){
+		
+		for(var id : var paquet_group in all_eval_1){
+			
+			// Pour toutes les combinaisons
+			
+			if(paquet_enemy[1]+paquet_group[2] <= _LEEK_MP[_MY_LEEK]){
+				
+				var simul = simulFight(enemy, paquet_enemy, paquet_group);
+				
+				if(!max_res or simul > max_res){
+				
+					max_res = simul ;
+					paquets = [1: paquet_enemy, 2: _SPAQUETS_LISTING[PAQUET_TYPE_MYSELF][id]] ;
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	return [max_res, paquets];
+	
+}
+
+function eval_1(enemy, combo){
+
+	var life_boost = 0;
+	var total_life_boost = 0;
+	var strenght_boost = 0;
+	var wisdom_boost = 0;
+	var agility_boost = 0; 
+	var resistance_boost = 0;
+	var magic_boost = 0;
+	var tp_boost = 0;
+	var mp_boost = 0;
+	var absolute_shield_boost = 0;
+	var relative_shield_boost = 0;
+	var antidote = false ;
+	
+	var enemy_life_boost = 0;
+	var enemy_total_life_boost = 0;
+	var enemy_strenght_boost = 0;
+	var enemy_wisdom_boost = 0;
+	var enemy_magic_boost = 0;
+	var enemy_tp_boost = 0;
+	var enemy_mp_boost = 0;
+	var enemy_relative_shield_boost = 0;
+	
+	for(var boost in combo[0]){
+		
+		boost = boost[0] ;
+		
+		for(var effect in _ITEM_EFFECT_ABSOLUTE_SHIELD[boost]){
+			absolute_shield_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_RELATIVE_SHIELD[boost]){
+			relative_shield_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_BOOST_MAX_LIFE[boost]){
+			total_life_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_HEAL[boost]){
+			life_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_BUFF_RESISTANCE[boost]){
+			resistance_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_BUFF_AGILITY[boost]){
+			agility_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_BUFF_STRENGTH[boost]){
+			strenght_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_BUFF_TP[boost]){
+			tp_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_BUFF_MP[boost]){
+			mp_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_BUFF_WISDOM[boost]){
+			wisdom_boost += ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_SHACKLE_MAGIC[boost]){
+			enemy_magic_boost -= ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_SHACKLE_TP[boost]){
+			enemy_tp_boost -= ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_SHACKLE_MP[boost]){
+			enemy_mp_boost -= ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_SHACKLE_STRENGTH[boost]){
+			enemy_strenght_boost -= ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_VULNERABILITY[boost]){
+			enemy_relative_shield_boost -= ((effect[0]+effect[1])/2)*(effect[2] > 0 ? effect[2] : 1) ;
+		}
+		
+		for(var effect in _ITEM_EFFECT_ANTIDOTE[boost]){
+			antidote = true ;
+		}
+		
+		/*for(var effect in _ITEM_EFFECT_DAMAGE_RETURN[boost]){
+			
+		}*/
+		
+		/*for(var effect in _ITEM_EFFECT_SUMMON[boost]){
+			
+		}*/
+		
+	}
+	
+	return [[life_boost, total_life_boost, strenght_boost, wisdom_boost, agility_boost, resistance_boost, 
+			magic_boost, tp_boost, mp_boost, absolute_shield_boost, relative_shield_boost, antidote],
+			[enemy_strenght_boost, enemy_magic_boost, enemy_tp_boost, enemy_mp_boost, enemy_relative_shield_boost],
+			combo[1]];
+	
+}
+
+// Les puces sur soi même
+function listing_step_1(){ 
+	var boost_combo = [[[],0]] ;
+	var max_pt = _LEEK_TP[_MY_LEEK] ;
+	for(var boost in _SPAQUETS[2]){
+		for(var combo in boost_combo){
+			var cost = getCost(combo[0]+[boost]) ;
+			var cb = [combo[0]+[boost], cost] ;
+			if(cost <= max_pt and !inArray(boost_combo, cb)) push(boost_combo, cb) ;
+		}
+		push(boost_combo, [[boost], getCost([boost])]) ;
+	}
+	_SPAQUETS_LISTING[PAQUET_TYPE_MYSELF] = boost_combo ;
+}
+
+// Cache
+global INTERACTION_COST = [] ;
+
+// Les actions
+function listing_step_2(){
+
+	var sec_boost_list = [] ;
+	
+	for(var sec_boost in _SPAQUETS[1]){
+		if(_ITEMS[sec_boost[0]] === 1 or _ITEM_COOLDOWN[sec_boost[1]] === 0) push(sec_boost_list, sec_boost) ;
+	}
+	
+	debug(sec_boost_list) ;
+	
+	for(var item in _SPAQUETS[1]){
+		INTERACTION_COST[0][item[0]] = getPathLength(_LEEK_CELL[_MY_LEEK], item[1]) ; 
+		for(var item_b in _SPAQUETS[1]){
+			if(!INTERACTION_COST[item[0]][item_b[0]]){
+				var cost = getPathLength(item[1], item_b[1]) ;
+				INTERACTION_COST[item[0]][item_b[0]] = cost ;
+				INTERACTION_COST[item_b[0]][item[0]] = cost ;
+			}
+		}	
+	}
+
+	var boost_combo = [[[],0]] ;
+	var max_pt = _LEEK_TP[_MY_LEEK] ;
+	var max_pm = _LEEK_MP[_MY_LEEK] ;
+	
+	for(var boost in _SPAQUETS[1]){
+		for(var sec_boost in _SPAQUETS[1]){
+			if(boost === sec_boost and !inArray(sec_boost, sec_boost_list)) continue ;
+			var cost = getCost([sec_boost,boost]) ;
+			var pm_cost = getPMCost([sec_boost,boost]) ;
+			if(cost <= max_pt and pm_cost <= max_pm) push(boost_combo, [[sec_boost,boost],cost]) ;
+		}
+		push(boost_combo, [[boost],getCost([boost])]) ;
+	}
+	_SPAQUETS_LISTING[PAQUET_TYPE_ENEMY] = boost_combo ;
+}
+
+function getCost(els){
+	var cost = INTERACTION_COST[0][els[0][0]] ;
+	for(var el in els){
+		cost += _ITEM_COST[el[0]] ;
+	}
+	return cost ;
+}
+
+function getPMCost(els){
+	var cost = 0 ;
+	for(var i=1;i<count(els);i++){
+		cost += INTERACTION_COST[els[i-1][0]][els[i][0]] ;
+	}
+}
 
 function setSPaquets(enemy){
 	
@@ -44,21 +372,23 @@ function setSPaquets(enemy){
 
 			if(cell_from_shoot and getCellDistance(cell_from_shoot, my_cell) <= my_mp){
 
-				push(_SPAQUETS, [PAQUET_TYPE_ENEMY,item,cell_from_shoot]) ;
+				push(_SPAQUETS[PAQUET_TYPE_ENEMY], [item,cell_from_shoot]) ;
 
 			}
 			
 		}else{
 			
-			push(_SPAQUETS, [PAQUET_TYPE_MYSELF,item]) ;
+			push(_SPAQUETS[PAQUET_TYPE_MYSELF], [item]) ;
 			
 		}
 		
 	}
 	
+	var not_secure_cells = getNotSecureCells(enemy) ; 
+	
 	for(var cell : var cost in _LEEK_ACCESSIBLE_CELLS[_MY_LEEK]){
 		
-		push(_SPAQUETS, [PAQUET_TYPE_MOVE, cell]) ;
+		if(!inArray(not_secure_cells, cell)) push(_SPAQUETS[PAQUET_TYPE_MOVE], [cell]) ;
 		
 	}
 	
