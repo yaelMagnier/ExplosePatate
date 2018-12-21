@@ -22,8 +22,9 @@ global PAQUET_TYPE_MOVE = 3 ;
 function simulFight(enemy,paquet_enemy,paquet_group){
 	
 	var wisdom = 1 + ((_LEEK_WISDOM[_MY_LEEK] + paquet_group[0][3])/100);
-	var life = (_LEEK_LIFE[_MY_LEEK] + paquet_group[0][0]+paquet_group[0][1])*wisdom;
-	var total_life = (_LEEK_TOTAL_LIFE[_MY_LEEK] + paquet_group[0][1])*wisdom;
+	var total_life = (_LEEK_TOTAL_LIFE[_MY_LEEK]) + paquet_group[0][1]*wisdom;
+	var initial_life = _LEEK_LIFE[_MY_LEEK] ;
+	var life = min(_LEEK_LIFE[_MY_LEEK] + (paquet_group[0][0]+paquet_group[0][1])*wisdom, total_life);
 	var science = 1 + (_LEEK_SCIENCE[_MY_LEEK]/100) ;
 	var agility = 1 + ((_LEEK_AGILITY[_MY_LEEK]+paquet_group[0][4]*science)/100) ;
 	var strength = 1 + (_LEEK_STRENGTH[_MY_LEEK]+paquet_group[0][2]*science) / 100 ;
@@ -115,7 +116,7 @@ function simulFight(enemy,paquet_enemy,paquet_group){
 		
 	}
 	
-	return (1-enemy_life/enemy_initial_life)*100;
+	return ((1-enemy_life/enemy_initial_life)-(1-life/initial_life))*100 ; //*100;
 	
 }
 
@@ -134,11 +135,14 @@ function eval2(enemy){
 	
 	for(var id_paq_en : var paquet_enemy in _SPAQUETS_LISTING[PAQUET_TYPE_ENEMY]){
 		
+		// Evaluation du cout du paquet
+		var paquet_enemy_cost = getCost(paquet_enemy) ;
+		
 		for(var id : var paquet_group in all_eval_1){
 			
 			// Pour toutes les combinaisons
 			
-			if(paquet_enemy[1]+paquet_group[2] <= _LEEK_MP[_MY_LEEK]){
+			if(paquet_enemy_cost+paquet_group[2] <= _LEEK_MP[_MY_LEEK]){
 				
 				var simul = simulFight(enemy, paquet_enemy, paquet_group);
 				
@@ -285,25 +289,18 @@ function listing_step_1(){
 
 // Cache
 global INTERACTION_COST = [] ;
+INTERACTION_COST = [10000: []] ;
 
 // Les actions
 function listing_step_2(){
-
-	var sec_boost_list = [] ;
-	
-	for(var sec_boost in _SPAQUETS[1]){
-		if(_ITEMS[sec_boost[0]] === 1 or _ITEM_COOLDOWN[sec_boost[1]] === 0) push(sec_boost_list, sec_boost) ;
-	}
-	
-	debug(sec_boost_list) ;
 	
 	for(var item in _SPAQUETS[1]){
-		INTERACTION_COST[0][item[0]] = getPathLength(_LEEK_CELL[_MY_LEEK], item[1]) ; 
+		if(_TURN === 3) debugW(item) ;
+		INTERACTION_COST[item[0]] = [] ;
+		INTERACTION_COST[10000][item[0]] = getPathLength(_LEEK_CELL[_MY_LEEK], item[1]) ; 
 		for(var item_b in _SPAQUETS[1]){
 			if(!INTERACTION_COST[item[0]][item_b[0]]){
-				var cost = getPathLength(item[1], item_b[1]) ;
-				INTERACTION_COST[item[0]][item_b[0]] = cost ;
-				INTERACTION_COST[item_b[0]][item[0]] = cost ;
+				INTERACTION_COST[item[0]][item_b[0]] = getPathLength(item[1], item_b[1]) ;
 			}
 		}	
 	}
@@ -312,20 +309,32 @@ function listing_step_2(){
 	var max_pt = _LEEK_TP[_MY_LEEK] ;
 	var max_pm = _LEEK_MP[_MY_LEEK] ;
 	
-	for(var boost in _SPAQUETS[1]){
-		for(var sec_boost in _SPAQUETS[1]){
-			if(boost === sec_boost and !inArray(sec_boost, sec_boost_list)) continue ;
-			var cost = getCost([sec_boost,boost]) ;
-			var pm_cost = getPMCost([sec_boost,boost]) ;
-			if(cost <= max_pt and pm_cost <= max_pm) push(boost_combo, [[sec_boost,boost],cost]) ;
-		}
-		push(boost_combo, [[boost],getCost([boost])]) ;
+	var final_tab = [[[],0]] ;
+	var new_els = [] ;
+	
+	for(var el in _SPAQUETS[1]){
+		push(new_els, [el]) ;
 	}
-	_SPAQUETS_LISTING[PAQUET_TYPE_ENEMY] = boost_combo ;
+	
+	// /!\ Diviser par 4 fait que les puces tels que SPARK ne sont pas exploitées à 100%
+	for(var i=1;i<floor(max_pt/4);i++){ 
+		var new_new_els = [] ;
+		for(var b_el in _SPAQUETS[1]){	
+			for(var el in new_els){
+				var poss = el+[b_el];
+				var cost = getCost(poss) ;
+				if(cost <= max_pt and getPMCost(poss) <= max_pm) push(new_new_els, poss) ;
+			}
+		}
+		pushAll(final_tab, new_els) ;
+		new_els = new_new_els ;
+	}
+	
+	_SPAQUETS_LISTING[PAQUET_TYPE_ENEMY] = final_tab+new_els ;
 }
 
 function getCost(els){
-	var cost = INTERACTION_COST[0][els[0][0]] ;
+	var cost = 0 ;
 	for(var el in els){
 		cost += _ITEM_COST[el[0]] ;
 	}
@@ -333,10 +342,11 @@ function getCost(els){
 }
 
 function getPMCost(els){
-	var cost = 0 ;
+	var cost = INTERACTION_COST[10000][els[0][0]] ;
 	for(var i=1;i<count(els);i++){
 		cost += INTERACTION_COST[els[i-1][0]][els[i][0]] ;
 	}
+	return cost ;
 }
 
 function setSPaquets(enemy){
@@ -355,7 +365,7 @@ function setSPaquets(enemy){
 		  or !isEmpty(_ITEM_EFFECT_SHACKLE_TP[item]) 
 		  or !isEmpty(_ITEM_EFFECT_SHACKLE_MP[item]) 
 		  or !isEmpty(_ITEM_EFFECT_SHACKLE_STRENGTH[item])){
-				
+			
 			// Parmis les possibilités, prendre la moins couteuse
 
 			var cell_from_shoot ;
