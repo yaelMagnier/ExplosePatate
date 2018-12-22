@@ -1,1 +1,79 @@
+include('../../main/INCLUDER') ;
 
+global MAP_OF_DAMAGE = [] ;
+MAP_OF_DAMAGE = [] ;
+
+function mapOfDamage(){
+
+	if(isEmpty(MAP_OF_DAMAGE)) fill(MAP_OF_DAMAGE, 0, __MAX_CELL) ;
+
+	for(var leek in _LEEKS){
+	
+		if(_LEEK_IS_ENEMY[leek]){
+		
+			for(var item in _LEEK_ITEMS[leek]){
+				
+				var damage = !isEmpty(_ITEM_EFFECT_DAMAGE[item]) ;
+				var poison = !isEmpty(_ITEM_EFFECT_POISON[item]) ;
+					
+				if(damage or poison){
+					
+					var item_damage = 0 ;
+					var aoe = abs(_ITEM_AREA[item]-2) ;
+					
+					debug('item effect: ' + _ITEM_EFFECT_DAMAGE[item]) ;
+					
+					for(var effect in _ITEM_EFFECT_DAMAGE[item]){
+						
+						//if(effect[3] & EFFECT_TARGET_ENEMIES !== 0){
+							
+							item_damage += (effect[0]+effect[1])/2*(effect[2] > 0 ? effect[2] : 1) ;
+							
+						//}
+						
+					}
+					
+					for(var effect in _ITEM_EFFECT_POISON[item]){
+						
+						//if(effect[3] & EFFECT_TARGET_ENEMIES !== 0){
+							
+							item_damage += (effect[0]+effect[1])/2*(effect[2] > 0 ? effect[2] : 1) ;
+							
+						//}
+						
+					}
+			
+					for(var enemy_cell : var _ in _LEEK_ACCESSIBLE_CELLS[leek]){
+
+						for(var targetable_cell in getTargetableCells(item,enemy_cell)){
+							
+							var x = _CELL_X[targetable_cell] ;
+							var y = _CELL_Y[targetable_cell] ;
+							
+							for(var x1=x-aoe;x1<=x+aoe;x1++){
+								for(var y1=y-aoe;y1<=y+aoe;y1++){
+									var dist = ((x-x1)<0?x1-x:x-x1)+(y-y1<0?y1-y:y-y1) ;
+									if(dist <= aoe){
+										var aoe_damage = item_damage * (0.5*(1-dist/aoe)+0.5) ;
+										var aoe_cell = getCellFromXY(x1, y1) ;
+										if(!MAP_OF_DAMAGE[aoe_cell] 
+										  or aoe_damage > MAP_OF_DAMAGE[aoe_cell]){
+											MAP_OF_DAMAGE[aoe_cell] = aoe_damage ;
+										}
+									}
+								}
+							}
+							
+							  
+						}
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+}
