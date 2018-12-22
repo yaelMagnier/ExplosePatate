@@ -14,11 +14,14 @@ global PAQUET_TYPE_ENEMY = 1 ;
 global PAQUET_TYPE_MYSELF = 2 ;
 global PAQUET_TYPE_MOVE = 3 ;
 
+global NOW_WEAPON = getWeapon() ;
+
 // Exclure regen ?
 // Durée de l'action directement multiplié, diminue ainsi l'effet des défenses absolues.
-// Cout du changement d'arme
 // Arme en début de partie
 // Obstacles non pris en compte
+// tour 9 et 10 scenario impossible https://leekwars.com/fight/27594098
+// Conseil : Compter le poison n fois, ou n est min(canUseAntidote, effectTurn)
 
 function execute(enemy){
 
@@ -26,12 +29,34 @@ function execute(enemy){
 	listing_step_1() ;
 	listing_step_2() ;
 	var scenario = eval2(enemy) ;
-	debugW('tour ' + _TURN + ', scenario: ' + scenario) ;
+	if(___DEBUG) debugW('tour ' + _TURN + ', scenario: ' + scenario) ; //Permanant
+	
+	debug(_SPAQUETS_LISTING[2]) ;
+	debug('---------------------') ;
+	debug(_SPAQUETS[2]) ;
 	
 	for(var boost in scenario[PAQUET_TYPE_MYSELF][0]){
 	
 		boost = boost[0] ;
-		useChip(boost, _MY_LEEK) ;
+		
+		if(boost == CHIP_ANTIDOTE){
+		
+			var poison = 0 ;
+			
+			for(var effect in getEffects()){
+			
+				if(effect[0] === EFFECT_POISON){
+					poison += 1 ;
+				}
+				
+			}
+			
+			if(poison <= 3) continue ;
+			
+		}
+		
+		debug('try to use ' + boost + '.') ;
+		debug(useChip(boost, _MY_LEEK)) ;
 	}
 	
 	//debug('Scenario offensif: ' + scenario[PAQUET_TYPE_ENEMY]) ;
@@ -44,16 +69,18 @@ function execute(enemy){
 			attack = attack[0] ;
 
 			moveTowardCell(position) ;
+				
+			debug('try to use ' + attack + '.') ;
 
 			if(_ITEMS[attack] === 1){
 
 				if(getWeapon() != attack) setWeapon(attack) ;
 
-				useWeapon(enemy) ;
+				debug(useWeapon(enemy)) ;
 
 			}else{
-
-				 useChip(attack, enemy);
+				
+				 debug(useChip(attack, enemy));
 
 			}
 
@@ -106,6 +133,14 @@ function simulFight(enemy,paquet_enemy,paquet_group){
 	var enemy_relative_shield =  1 - ((_LEEK_RELATIVE_SHIELD[enemy]
 										* (1 + enemy_resistance / 100) + paquet_group[1][4]))/100 ;
 	
+	for(var effect in getEffects()){
+		
+		if(effect[0] === EFFECT_POISON and !paquet_group[0][11]){
+			life -= effect[1]*(effect[2]**0.5) ;
+		}
+		
+	}
+	
 	// Items négatifs
 	for(var paquet in paquet_enemy){
 	
@@ -154,11 +189,15 @@ function simulFight(enemy,paquet_enemy,paquet_group){
 		  	
 			for(var effect in _ITEM_EFFECT_DAMAGE[item]){
 			
-				enemy_life -= ( (effect[0]+effect[1])/2 
+				var damage = ( (effect[0]+effect[1])/2 
 								* strength
 								* enemy_relative_shield
 								- enemy_absolute_shield
 							  ) * (effect[2] > 0 ? effect[2] : 1) ;
+				
+				enemy_life -= damage ;
+				
+				life += min(damage*wisdom/1000, total_life) ;
 							  
 			}
 
@@ -197,18 +236,20 @@ function eval2(enemy){
 		// Evaluation du cout du paquet
 		var paquet_enemy_cost = getCost(paquet_enemy) ;
 		
-		/*debugC('paquet: ' + paquet_enemy, COLOR_BLUE) ;
-		debugC('paquet cost: ' + paquet_enemy_cost, COLOR_BLUE) ;
-		debugC('paquet simul: ' + simulFight(enemy, paquet_enemy, all_eval_1[0]), COLOR_BLUE) ;
-		debugC('---------------------------------', COLOR_BLUE) ;*/
-		
 		for(var id : var paquet_group in all_eval_1){
 			
 			// Pour toutes les combinaisons
 			
-			if(paquet_enemy_cost+paquet_group[2] <= _LEEK_MP[_MY_LEEK]){
+			if(paquet_enemy_cost+paquet_group[2] <= _LEEK_TP[_MY_LEEK]){
 				
 				var simul = simulFight(enemy, paquet_enemy, paquet_group);
+				
+				/*debugC('enemy paquet: ' + paquet_enemy, COLOR_BLUE) ;
+				debugC('enemy paquet cost: ' + paquet_enemy_cost, COLOR_BLUE) ;
+				debugC('group paquet: ' + paquet_group, COLOR_BLUE) ;
+				debugC('group paquet cost: ' + paquet_group[2], COLOR_BLUE) ;
+				debugC('paquet simul: ' + simul, COLOR_BLUE) ;
+				debugC('---------------------------------', COLOR_BLUE) ;*/
 				
 				if(!max_res or simul > max_res){
 				
@@ -217,7 +258,16 @@ function eval2(enemy){
 					
 				}
 				
-			}
+			}/*else{
+				var simul = simulFight(enemy, paquet_enemy, paquet_group);
+				
+				debugC('enemy paquet: ' + paquet_enemy, COLOR_RED) ;
+				debugC('enemy paquet cost: ' + paquet_enemy_cost, COLOR_RED) ;
+				debugC('group paquet: ' + paquet_group, COLOR_RED) ;
+				debugC('group paquet cost: ' + paquet_group[2], COLOR_RED) ;
+				debugC('paquet simul: ' + simul, COLOR_RED) ;
+				debugC('---------------------------------', COLOR_RED) ;
+			}*/
 			
 		}
 		
@@ -338,15 +388,20 @@ function eval_1(enemy, combo){
 
 // Les puces sur soi même
 function listing_step_1(){ 
-	var boost_combo = [[[],0]] ;
+	var boost_combo = [] ;
 	var max_pt = _LEEK_TP[_MY_LEEK] ;
-	for(var boost in _SPAQUETS[2]){
-		for(var combo in boost_combo){
-			var cost = getCost(combo[0]+[boost]) ;
-			var cb = [combo[0]+[boost], cost] ;
-			if(cost <= max_pt and !inArray(boost_combo, cb)) push(boost_combo, cb) ;
+	if(isEmpty(_SPAQUETS[2])) push(boost_combo, [[],0]) ;
+	else{
+		for(var boost in _SPAQUETS[2]){
+			var copy = boost_combo ;
+			for(var combo in copy){
+				var cost = getCost(combo[0]+[boost]) ;
+				var cb = [combo[0]+[boost], cost] ;
+				if(cost <= max_pt and !inArray(boost_combo, cb)) push(boost_combo, cb) ;
+			}
+			push(boost_combo, [[boost], getCost([boost])]) ;
 		}
-		push(boost_combo, [[boost], getCost([boost])]) ;
+		
 	}
 	_SPAQUETS_LISTING[PAQUET_TYPE_MYSELF] = boost_combo ;
 }
@@ -378,10 +433,16 @@ function listing_step_2(){
 		push(new_els, [el]) ;
 	}
 	
+	var sec_boost_list = [] ;
+
+	for(var sec_boost in _SPAQUETS[1]){
+		if(_ITEMS[sec_boost[0]] === 1 or _ITEM_COOLDOWN[sec_boost[1]] === 0) push(sec_boost_list, sec_boost) ;
+	}
+	
 	// /!\ Diviser par 4 fait que les puces tels que SPARK ne sont pas exploitées à 100%
 	for(var i=1;i<floor(max_pt/4);i++){ 
 		var new_new_els = [] ;
-		for(var b_el in _SPAQUETS[1]){	
+		for(var b_el in sec_boost_list){ //_SPAQUETS[1]){	
 			for(var el in new_els){
 				var poss = el+[b_el];
 				var cost = getCost(poss) ;
@@ -397,8 +458,13 @@ function listing_step_2(){
 
 function getCost(els){
 	var cost = 0 ;
+	var current = NOW_WEAPON ;
 	for(var el in els){
 		cost += _ITEM_COST[el[0]] ;
+		if(_ITEMS[el[0]] === 1 and el[0] !== current){
+			current = el[0] ;
+			cost += 1 ;
+		}
 	}
 	return cost ;
 }
@@ -433,8 +499,11 @@ function setSPaquets(enemy){
 			var cell_from_shoot ;
 
 			for(var cell in getTargetableCells(item,enemy_cell)){
+			
+				var pl1 = getPathLength(my_cell, cell) ;
+				var pl2 = getPathLength(my_cell, cell_from_shoot) ;
 
-				if(!cell_from_shoot or getPathLength(my_cell, cell) < getPathLength(my_cell, cell_from_shoot)){
+				if(!cell_from_shoot or (pl1 and pl2 and pl1 > pl2)){
 
 					cell_from_shoot = cell ;
 
@@ -442,7 +511,9 @@ function setSPaquets(enemy){
 
 			}
 
-			if(cell_from_shoot and getPathLength(cell_from_shoot, my_cell) <= my_mp){
+			var pl = getPathLength(cell_from_shoot, my_cell) ;
+
+			if(cell_from_shoot and pl and pl <= my_mp){
 
 				push(_SPAQUETS[PAQUET_TYPE_ENEMY], [item,cell_from_shoot]) ;
 
